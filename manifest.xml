@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin_manifest xmlns="http://www.elgg.org/plugin_manifest/1.8">
+	<name>Srokap Code Analyzer</name>
+	<author>Paweł Sroka (srokap@gmail.com)</author>
+	<version>1.0rc1</version>
+	<description>Analyzes plugins code and provides basic information on code quality, compatibility and structure.</description>
+	<website>http://srokap.pl/</website>
+	<copyright>(C) Paweł Sroka 2013</copyright>
+	<license>http://opensource.org/licenses/BSD-3-Clause</license>
+	
+	<category>admin</category>
+
+	<requires>
+		<type>elgg_release</type>
+		<version>1.8</version>
+	</requires>
+
+	<requires>
+		<type>plugin</type>
+		<name>srokap_framework</name>
+	</requires>
+	
+	<provides>
+		<type>plugin</type>
+		<name>srokap_zend</name>
+		<version>2.0.6</version>
+	</provides>
+
+</plugin_manifest>
