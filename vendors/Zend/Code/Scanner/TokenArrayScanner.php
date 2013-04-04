@@ -247,6 +247,7 @@ class TokenArrayScanner implements ScannerInterface
         foreach ($this->infos as $info) {
             if ($info['type'] == 'function') {
                 // @todo $functions[] = new FunctionScanner($info['name']);
+            	$functions[] = new FunctionScanner($info['name']);
             }
         }
         return $functions;

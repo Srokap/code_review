@@ -280,6 +280,7 @@ class FileReflection implements ReflectionInterface
     {
         $scanner             = new CachingFileScanner($this->filePath);
         $this->docComment    = $scanner->getDocComment();
+        $this->functions     = $scanner->getFunctions();
         $this->requiredFiles = $scanner->getIncludes();
         $this->classes       = $scanner->getClassNames();
         $this->namespaces    = $scanner->getNamespaces();
