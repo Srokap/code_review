@@ -10,7 +10,7 @@ $mt = microtime(true);
 
 $analyzer = new CodeReviewAnalyzer();
 $analyzer->analyze(code_review::getPhpFilesIterator('/', $skipInactive), $version);
-$body .= $analyzer->ouptutReport();
+$body .= $analyzer->ouptutReport($skipInactive);
 
 $body .= sprintf("Time taken: %.4fs\n", microtime(true) - $mt);
 
