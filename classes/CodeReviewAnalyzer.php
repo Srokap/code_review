@@ -122,6 +122,7 @@ class CodeReviewAnalyzer {
 				list($token, $functionName, $lineNumber) = $row;
 				if ($token == T_STRING && isset($functions[$functionName]) 
 					&& !$this->isToken($phpTokens[$key-1], T_OBJECT_OPERATOR) //not method
+					&& !$this->isToken($phpTokens[$key-1], T_DOUBLE_COLON) //not static method
 					&& !$this->isToken($phpTokens[$key-2], T_FUNCTION) //not definition
 				) {
 // 					if (!$this->isToken($phpTokens[$key-1], T_WHITESPACE)) {

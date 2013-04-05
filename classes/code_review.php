@@ -11,7 +11,7 @@ class code_review {
 // 		$loader->register();
 	}
 	
-	static function init($foo, $bar = 'abc') {
+	static function init() {
 // 		self::playground();
 
 		elgg_register_event_handler('pagesetup', 'system', array(__CLASS__, 'pagesetup'));

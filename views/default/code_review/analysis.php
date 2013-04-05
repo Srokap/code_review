@@ -1,4 +1,7 @@
 <?php
+
+ini_set('max_execution_time', 0);
+
 $version = elgg_extract('version', $vars);
 $include_disabled_plugins = elgg_extract('include_disabled_plugins', $vars, false);
 $skipInactive = !$include_disabled_plugins;

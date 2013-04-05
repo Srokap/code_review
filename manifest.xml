@@ -2,7 +2,7 @@
 <plugin_manifest xmlns="http://www.elgg.org/plugin_manifest/1.8">
 	<name>Code Analyzer</name>
 	<author>Paweł Sroka (srokap@gmail.com)</author>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<description>Analyzes plugins code and provides basic information on code quality, compatibility and structure.</description>
 	<website>https://srokap.pl/</website>
 	<copyright>(C) Paweł Sroka 2013</copyright>
