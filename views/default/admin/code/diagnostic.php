@@ -1,11 +1,11 @@
 <?php
 
-$language = get_input('language');
+$version = get_input('version');
 
 $body = elgg_view_form('code_review/select', array(
 	'action' => '#',
 ), array(
-	'language' => $language,
+	'version' => $version,
 ));
 
 echo elgg_view_module('main', elgg_echo('code_review:form'), $body);
@@ -18,9 +18,9 @@ $body .= elgg_view('graphics/ajax_loader', array(
 ));
 $body .= '<div id="code-review-result">';
 
-if ($language) {
+if ($version) {
 	$body .= elgg_view('code_review/analysis', array(
-		'language' => $language,
+		'version' => $version,
 	));
 } else {
 	$body .= elgg_echo('code_review:results:initial_stub');
@@ -30,3 +30,4 @@ $body .= '</div>';
 
 echo elgg_view_module('main', elgg_echo('code_review:results'), $body);
 
+//var_dump(code_review::getDeprecatedFunctionsList('1.9'));

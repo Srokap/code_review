@@ -36,7 +36,7 @@ class CodeReviewAnalyzer {
 				}
 				break;
 			case self::T_PLUGINS_ALL:
-				$pluginsDirs = elgg_get_plugin_ids_in_dir(elgg_get_config('path') . 'mod/');
+				$pluginsDirs = code_review::getPluginDirsInDir(elgg_get_config('path') . 'mod/');
 				break;
 							
 		}
@@ -90,8 +90,9 @@ class CodeReviewAnalyzer {
 		foreach ($this->stats as $filePath => $items) {
 			$result .= "\nIn file: " . $filePath . "\n";
 			foreach ($items as $row) {
-				list($version, $function, $line) = $row;
-				$result .= "    Line $line:\tFunction call: $function (deprecated since $version)\n";
+				list($data, $function, $line) = $row;
+				$version = $data['version'];
+				$result .= "    Line $line:\tFunction call: $function (deprecated since $version)" . ($data['fixinfo'] ? ' ' . $data['fixinfo'] : '') . "\n";
 			}
 		}
 		
