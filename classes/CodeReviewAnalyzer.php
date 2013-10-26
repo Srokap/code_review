@@ -58,8 +58,7 @@ class CodeReviewAnalyzer {
 		
 		$cnt = 0;
 		foreach ($i as $filePath => $val) {
-			$contents = file_get_contents($filePath);
-			$result = $this->processFileContents($contents, $functions);
+			$result = $this->processFile($filePath, $functions);
 			if (!empty($result)) {
 				$this->stats[$filePath] = $result;
 			}
@@ -102,29 +101,20 @@ class CodeReviewAnalyzer {
 	}
 	
 	/**
-	 * @param array|string $val
-	 * @param int $token
-	 * @return boolean
-	 */
-	public function isToken($val, $token) {
-		return is_array($val) && $val[0] == $token;
-	}
-	
-	/**
 	 * Find elgg_echo invocations and extract together with parameters
-	 * @param string $contents
+	 * @param string $filePath
 	 * @return array
 	 */
-	public function processFileContents($contents, $functions) {
+	public function processFile($filePath, $functions) {
 		$result = array();
-		$phpTokens = token_get_all($contents);
+		$phpTokens = new PhpFileParser($filePath);
 		foreach ($phpTokens as $key => $row) {
 			if (is_array($row)) {
 				list($token, $functionName, $lineNumber) = $row;
 				if ($token == T_STRING && isset($functions[$functionName]) 
-					&& !$this->isToken($phpTokens[$key-1], T_OBJECT_OPERATOR) //not method
-					&& !$this->isToken($phpTokens[$key-1], T_DOUBLE_COLON) //not static method
-					&& !$this->isToken($phpTokens[$key-2], T_FUNCTION) //not definition
+					&& !$phpTokens->isEqualToToken(T_OBJECT_OPERATOR, $key-1) //not method
+					&& !$phpTokens->isEqualToToken(T_DOUBLE_COLON, $key-1) //not static method
+					&& !$phpTokens->isEqualToToken(T_FUNCTION, $key-2) //not definition
 				) {
 // 					if (!$this->isToken($phpTokens[$key-1], T_WHITESPACE)) {
 // 						var_dump($phpTokens[$key-1], $functionName, $phpTokens[$key+1]);
