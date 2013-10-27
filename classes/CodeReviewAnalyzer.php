@@ -48,6 +48,10 @@ class CodeReviewAnalyzer {
 	 * @return array
 	 */
 	public function analyze(Iterator $i, $maxVersion = null) {
+
+		$fixer = new CodeFixer();
+		$fixer->getBasicFunctionRenamesTest();
+
 		$this->stats = array();
 		if (!$maxVersion) {
 			$maxVersion = get_version(true);
@@ -101,7 +105,7 @@ class CodeReviewAnalyzer {
 	}
 	
 	/**
-	 * Find elgg_echo invocations and extract together with parameters
+	 * Find function calls and extract
 	 * @param string $filePath
 	 * @return array
 	 */
@@ -121,6 +125,10 @@ class CodeReviewAnalyzer {
 // 					}
 					//T_WHITESPACE / T_OBJECT_OPERATOR
 					$result[] = array($functions[$functionName], $functionName, $lineNumber);
+//					$phpTokens[$key] = array(T_STRING, 'test_function');
+//					if ($phpTokens->exportPhp() != file_get_contents($filePath)) {
+//						die($filePath);
+//					}
 				}
 			}
 		}

@@ -10,6 +10,11 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 */
 	private $tokens = null;
 
+	/**
+	 * @param $fileName
+	 * @throws IOException
+	 * @throws Exception
+	 */
 	public function __construct($fileName) {
 		if (!file_exists($fileName)) {
 			throw new IOException("File $fileName does not exists");
@@ -48,6 +53,33 @@ class PhpFileParser implements Iterator, ArrayAccess {
 			return $val == $token;
 		}
 		return is_array($val) && $val[0] == $token;
+	}
+
+	/**
+	 * @param string $fileName
+	 * @return bool|string
+	 * @throws IOException
+	 */
+	public function exportPhp($fileName = null) {
+		$source = '';
+		$data = $this->tokens;
+		reset($data);
+		foreach ($data as $val) {
+			if (is_array($val)) {
+				$source .= $val[1];
+			} else {
+				$source .= $val;
+			}
+		}
+
+		if ($fileName !== null) {
+			if (!is_writable($fileName)) {
+				throw new IOException("$fileName must be writable");
+			}
+			return file_put_contents($fileName, $source) !== false;
+		} else {
+			return $source;
+		}
 	}
 
 	/**
