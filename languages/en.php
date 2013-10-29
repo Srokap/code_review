@@ -9,6 +9,7 @@ $result = array(
 	'code_review:deprecated_list:name' => 'Name',
 	'code_review:deprecated_list:remarks' => 'Remarks',
 	'code_review:deprecated_list:solution' => 'Solution',
+	'code_review:deprecated_list:file_line' => 'In file %s on line %d',
 
 	'code_review:solution:replace_with' => 'Replace with %s',
 

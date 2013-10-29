@@ -195,6 +195,8 @@ class code_review {
 						//check if non empty version and try go guess
 						$data = array(
 							'version' => $version,
+							'file' => $file->getPathname(),
+							'line' => $token[2],
 						);
 
 						$docBlock = $reflection->getDocComment();
