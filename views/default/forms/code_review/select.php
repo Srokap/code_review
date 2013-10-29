@@ -1,7 +1,12 @@
 <?php
 elgg_load_js('code_review');
 
-$version = elgg_extract('version', $vars, get_version(true));
+$bigVersion = elgg_get_version(true);
+if (preg_match('#^([0-9]+\.[0-9]+)#', $bigVersion, $matches)) {
+	$bigVersion = $matches[1];
+}
+
+$version = elgg_extract('version', $vars, $bigVersion);
 
 echo '<p>';
 echo '<label>' . elgg_echo('code_review:version') . '</label> ';

@@ -2,16 +2,20 @@
 
 $version = get_input('version');
 
+echo elgg_view('code_review/navigation');
+
+//analysis form
 $body = elgg_view_form('code_review/select', array(
 	'action' => '#',
 ), array(
 	'version' => $version,
 ));
 
-echo elgg_view_module('main', elgg_echo('code_review:form'), $body);
+echo elgg_view_module('main', elgg_echo('code_review:form'), $body, array(
+	'class' => 'mbs',
+));
 
-echo '<br>';
-
+//analysis result
 $body = '';
 $body .= elgg_view('graphics/ajax_loader', array(
 	'id' => 'code-review-loader'
@@ -28,4 +32,6 @@ if ($version) {
 
 $body .= '</div>';
 
-echo elgg_view_module('main', elgg_echo('code_review:results'), $body);
+echo elgg_view_module('main', elgg_echo('code_review:results'), $body, array(
+	'class' => 'mbl',
+));

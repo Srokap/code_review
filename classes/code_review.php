@@ -15,7 +15,9 @@ class code_review {
 // 		self::playground();
 
 		elgg_register_event_handler('pagesetup', 'system', array(__CLASS__, 'pagesetup'));
-		
+
+		elgg_register_plugin_hook_handler('register', 'menu:code_review', array(__CLASS__, 'menu_register'));
+
 		elgg_register_ajax_view('graphics/ajax_loader');
 		elgg_register_ajax_view('code_review/analysis');
 		
@@ -34,7 +36,23 @@ class code_review {
 			));
 		}
 	}
-	
+
+	static function menu_register() {
+		$result = array();
+		$result[] = ElggMenuItem::factory(array(
+			'name' => 'admin/code/diagnostic',
+			'href' => 'admin/code/diagnostic',
+			'text' => elgg_echo('admin:code:diagnostic'),
+		));
+		$result[] = ElggMenuItem::factory(array(
+			'name' => 'admin/code/diagnostic/deprecated_list',
+			'href' => 'admin/code/diagnostic/deprecated_list',
+			'text' => elgg_echo('admin:code:diagnostic:deprecated_list'),
+//			'target' => '_blank',
+		));
+		return $result;
+	}
+
 	/**
 	 * @return RegexIterator
 	 */
@@ -76,29 +94,48 @@ class code_review {
 	}
 
 	private static function getDeprecatedInfoFromDocBlock($deprecatedInfo) {
-		$deprecatedInfo = explode('* @', $deprecatedInfo);
 		$prefix = 'deprecated';
-		$deprecatedInfo = array_filter($deprecatedInfo, function($e) use ($prefix) {
-			return strpos($e, $prefix) === 0;
-		});
-		$deprecatedInfo = array_shift($deprecatedInfo);
-		$deprecatedInfo = substr($deprecatedInfo, strlen($prefix));
+		if (strpos($deprecatedInfo, '@' . $prefix) === false){
+			return false;
+		} else {
+			$deprecatedInfo = explode('* @', $deprecatedInfo);
+			$deprecatedInfo = array_filter($deprecatedInfo, function($e) use ($prefix) {
+				return strpos($e, $prefix) === 0;
+			});
+			$deprecatedInfo = array_shift($deprecatedInfo);
+			$deprecatedInfo = substr($deprecatedInfo, strlen($prefix));
 
-		//strip leading whitechars and stars and closing tags
-		$deprecatedInfo = preg_replace('#\n\s*(?:\*\/?\s*)+#', "\n", $deprecatedInfo);
-		//strip leading version info
-		$deprecatedInfo = preg_replace('#\s*[0-9](?:\.[0-9]){1,2}\s*#', "", $deprecatedInfo);
-		//strip embedded @link docblock entries
-		$deprecatedInfo = preg_replace('#\{\@[a-z]+\s([^\}]+)\}#', '$1', $deprecatedInfo);
-		//trim possible whitechars at the end
-		$deprecatedInfo = trim($deprecatedInfo);
+			//strip leading whitechars and stars and closing tags
+			$deprecatedInfo = preg_replace('#\n\s*(?:\*\/?\s*)+#', "\n", $deprecatedInfo);
+			//save and strip leading version info
+			$version = null;
+			preg_match('#^\s*([0-9]+\.[0-9]+)#', $deprecatedInfo, $matches);
+			if ($matches) {
+				$version = $matches[1];
+			}
+			$deprecatedInfo = preg_replace('#\s*[0-9](?:\.[0-9]){1,2}\.?\s*#', "", $deprecatedInfo);
+			//strip embedded @link docblock entries
+			$deprecatedInfo = preg_replace('#\{\@[a-z]+\s([^\}]+)\}#', '$1', $deprecatedInfo);
+			//trim possible whitechars at the end
+			$deprecatedInfo = trim($deprecatedInfo);
 
-//		var_dump($deprecatedInfo);
+	//		var_dump($deprecatedInfo);
 
-		return array(
-			'fixinfo' => strlen($deprecatedInfo) > 0 ? $deprecatedInfo : false,
-//			'replacement' => '',
-		);
+			$shortDeprecatedInfo = $deprecatedInfo;
+			if (($pos = strpos($shortDeprecatedInfo, "\n")) !== false) {
+				$shortDeprecatedInfo = substr($shortDeprecatedInfo, 0, $pos);
+			}
+
+			$result = array(
+				'deprecated' => true,
+//				'fixinfo' => strlen($deprecatedInfo) > 0 ? $deprecatedInfo : false,
+				'fixinfoshort' => strlen($shortDeprecatedInfo) > 0 ? $shortDeprecatedInfo : false,
+			);
+			if ($version) {
+				$result['version'] = $version;
+			}
+			return $result;
+		}
 	}
 
 	/**
@@ -106,8 +143,13 @@ class code_review {
 	 * @return array
 	 */
 	static function getDeprecatedFunctionsList($maxVersion = '1.8') {
-		$i = self::getDeprecatedIterator('engine/lib/');
-		$i = new RegexIterator($i, "/deprecated-.*/");
+		$i1 = self::getDeprecatedIterator('engine/lib/');
+		$i1 = new RegexIterator($i1, "/deprecated-.*/");
+		$i2 = self::getDeprecatedIterator('engine/classes/');
+
+		$i = new AppendIterator();
+		$i->append($i1);
+		$i->append($i2);
 		
 		$functs = array();
 		
@@ -124,30 +166,45 @@ class code_review {
 				if ($maxVersion && $version && version_compare($version, $maxVersion) > 0) {
 					continue;
 				}
-				
-				$source = file_get_contents($file->getPathname());
-				$tokens = token_get_all($source);
-				
+
+				$tokens = new PhpFileParser($file->getPathname());
+				$className = null;
+//				$nesting = 0;
+
 				foreach ($tokens as $key => $token) {
+					if ($tokens->isEqualToToken(T_INTERFACE, $key)) {
+						//we don't process interfaces for deprecated functions
+						break;
+					}
+					if ($tokens->isEqualToToken(T_CLASS, $key)) {
+						$className = $tokens[$key+2][1];
+					}
+
 					if (is_array($token) && $token[0] == T_FUNCTION) {
-						$functionName = $tokens[$key+2][1];
+						if ($className) {
+							$functionName = $className . '::' . $tokens[$key+2][1];
+							$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+						} else {
+							$functionName = $tokens[$key+2][1];
+							$reflection = new ReflectionFunction($functionName);
+						}
+
+						//is it deprecated? may not be
+
+//						var_dump($token, $tokens->isEqualToToken(T_FUNCTION, $key));
+						//check if non empty version and try go guess
 						$data = array(
 							'version' => $version,
 						);
 
-						//find nearest docblock
-						$comPos = $key - 1;
-						while (
-							isset($tokens[$comPos])
-							&& $tokens[$comPos][0] != T_FUNCTION
-							&& $tokens[$comPos][0] != T_DOC_COMMENT
-							&& ($key - $comPos) < 3
-						) {
-							$comPos--;
-						}
-						if ($tokens[$comPos][0] == T_DOC_COMMENT) {
-//							$data['docblock'] = $tokens[$comPos][1];
-							$data = array_merge($data, self::getDeprecatedInfoFromDocBlock($tokens[$comPos][1]));
+						$docBlock = $reflection->getDocComment();
+						if ($docBlock) {
+							$info = self::getDeprecatedInfoFromDocBlock($docBlock);
+							if (!$info) {
+								//skipping - not deprecated
+								continue;
+							}
+							$data = array_merge($data, $info);
 						}
 
 						$functs[$functionName] = $data;

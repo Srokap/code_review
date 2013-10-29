@@ -50,7 +50,7 @@ class CodeReviewAnalyzer {
 	public function analyze(Iterator $i, $maxVersion = null) {
 
 		$fixer = new CodeFixer();
-		$fixer->getBasicFunctionRenamesTest();
+		$instantReplacements = $fixer->getBasicFunctionRenames();
 
 		$this->stats = array();
 		if (!$maxVersion) {
@@ -62,7 +62,7 @@ class CodeReviewAnalyzer {
 		
 		$cnt = 0;
 		foreach ($i as $filePath => $val) {
-			$result = $this->processFile($filePath, $functions);
+			$result = $this->processFile($filePath, $functions, $instantReplacements);
 			if (!empty($result)) {
 				$this->stats[$filePath] = $result;
 			}
@@ -95,7 +95,7 @@ class CodeReviewAnalyzer {
 			foreach ($items as $row) {
 				list($data, $function, $line) = $row;
 				$version = $data['version'];
-				$result .= "    Line $line:\tFunction call: $function (deprecated since $version)" . ($data['fixinfo'] ? ' ' . $data['fixinfo'] : '') . "\n";
+				$result .= "    Line $line:\tFunction call: $function (deprecated since $version)" . ($data['fixinfoshort'] ? ' ' . $data['fixinfoshort'] : '') . "\n";
 			}
 		}
 		
@@ -109,9 +109,10 @@ class CodeReviewAnalyzer {
 	 * @param string $filePath
 	 * @return array
 	 */
-	public function processFile($filePath, $functions) {
+	public function processFile($filePath, $functions, $instantReplacements) {
 		$result = array();
 		$phpTokens = new PhpFileParser($filePath);
+		$changes = 0;
 		foreach ($phpTokens as $key => $row) {
 			if (is_array($row)) {
 				list($token, $functionName, $lineNumber) = $row;
@@ -120,17 +121,23 @@ class CodeReviewAnalyzer {
 					&& !$phpTokens->isEqualToToken(T_DOUBLE_COLON, $key-1) //not static method
 					&& !$phpTokens->isEqualToToken(T_FUNCTION, $key-2) //not definition
 				) {
-// 					if (!$this->isToken($phpTokens[$key-1], T_WHITESPACE)) {
-// 						var_dump($phpTokens[$key-1], $functionName, $phpTokens[$key+1]);
-// 					}
-					//T_WHITESPACE / T_OBJECT_OPERATOR
 					$result[] = array($functions[$functionName], $functionName, $lineNumber);
-//					$phpTokens[$key] = array(T_STRING, 'test_function');
+
+					//do instant replacement
+//					if (isset($instantReplacements[$functionName])) {
+//						$phpTokens[$key] = array(T_STRING, $instantReplacements[$functionName]);
+//						var_dump('fixing', $functionName);
+//						$changes++;
+//					}
+
 //					if ($phpTokens->exportPhp() != file_get_contents($filePath)) {
 //						die($filePath);
 //					}
 				}
 			}
+		}
+		if ($changes) {
+			$phpTokens->exportPhp($filePath);
 		}
 		unset($phpTokens);
 		return $result;

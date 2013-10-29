@@ -2,7 +2,16 @@
 $result = array(
 	'admin:code' => 'Code',
 	'admin:code:diagnostic' => 'Code diagnostic',
-	
+	'admin:code:diagnostic:deprecated_list' => 'Deprecated functions list',
+	'code_review:menu' => 'Menu',
+
+	'code_review:deprecated_list:title' => 'Deprecated since version %s',
+	'code_review:deprecated_list:name' => 'Name',
+	'code_review:deprecated_list:remarks' => 'Remarks',
+	'code_review:deprecated_list:solution' => 'Solution',
+
+	'code_review:solution:replace_with' => 'Replace with %s',
+
 	'code_review:form' => 'Options',
 	'code_review:results' => 'Results',
 	'code_review:results:initial_stub' => 'Select options and submit form above to perform analysis. May take significant time - please be patient.',
