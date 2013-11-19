@@ -54,12 +54,15 @@ class CodeReviewAnalyzer {
 
 		$this->stats = array();
 		if (!$maxVersion) {
-			$maxVersion = get_version(true);
+			$maxVersion = elgg_get_version(true);
 		}
 		$this->maxVersion = $maxVersion;
 		
 		$functions = code_review::getDeprecatedFunctionsList($maxVersion);
-		
+//		echo '<pre>';
+//		print_r($functions);
+//		echo '</pre>';
+
 		$cnt = 0;
 		foreach ($i as $filePath => $val) {
 			$result = $this->processFile($filePath, $functions, $instantReplacements);
@@ -121,7 +124,14 @@ class CodeReviewAnalyzer {
 					&& !$phpTokens->isEqualToToken(T_DOUBLE_COLON, $key-1) //not static method
 					&& !$phpTokens->isEqualToToken(T_FUNCTION, $key-2) //not definition
 				) {
-					$result[] = array($functions[$functionName], $functionName, $lineNumber);
+					$definingFunctionName = $phpTokens->getDefiningFunctionName($key);
+					//we're skipping deprecated calls that are in feprecated function itself
+					if (!$definingFunctionName || !isset($functions[$definingFunctionName])) {
+						$result[] = array($functions[$functionName], $functionName, $lineNumber);
+//						var_dump($filePath, $row, $phpTokens->getDefiningClassName($key), $phpTokens->getDefiningFunctionName($key));
+					} else {
+//						var_dump('SKIP', $functionName, $definingFunctionName);
+					}
 
 					//do instant replacement
 //					if (isset($instantReplacements[$functionName])) {

@@ -21,5 +21,8 @@
 		<type>elgg_release</type>
 		<version>1.8</version>
 	</requires>
-
+	<requires>
+		<type>php_extension</type>
+		<name>Reflection</name>
+	</requires>
 </plugin_manifest>

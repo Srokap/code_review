@@ -9,6 +9,15 @@ if (preg_match('#^([0-9]+\.[0-9]+)#', $bigVersion, $matches)) {
 $version = elgg_extract('version', $vars, $bigVersion);
 
 echo '<p>';
+echo '<label>' . elgg_echo('code_review:subpath') . '</label> ';
+echo elgg_view('input/text', array(
+	'name' => 'subpath',
+	'value' => get_input('subpath'),
+	'placeholder' => elgg_echo('code_review:subpath:placeholder'),
+));
+echo '</p>';
+
+echo '<p>';
 echo '<label>' . elgg_echo('code_review:version') . '</label> ';
 echo elgg_view('input/dropdown', array(
 	'name' => 'version',

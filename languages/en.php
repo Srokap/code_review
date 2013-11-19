@@ -17,6 +17,8 @@ $result = array(
 	'code_review:results' => 'Results',
 	'code_review:results:initial_stub' => 'Select options and submit form above to perform analysis. May take significant time - please be patient.',
 	'code_review:error:request' => 'There was problem during request',
+	'code_review:subpath' => 'Subdirectory to analyze',
+	'code_review:subpath:placeholder' => '(root of the install)',
 	'code_review:version' => 'Max version to analyze',
 	'code_review:disabled_plugins_only' => 'Include disabled plugins',
 );

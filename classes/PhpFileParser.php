@@ -30,8 +30,65 @@ class PhpFileParser implements Iterator, ArrayAccess {
 			throw new IOException("Error while fetching contents of file $fileName");
 		}
 		$this->tokens = token_get_all($contents);
+		$this->computeNestingParentTokens();
 		if (!is_array($this->tokens)) {
 			throw new Exception("Failed to parse PHP contents of $fileName");
+		}
+	}
+
+	private function computeNestingParentTokens($debug = false) {
+		$nesting = 0;
+		$parents = array();
+		$lastParent = null;
+		foreach ($this->tokens as $key => $token) {
+			if (is_array($token)) {
+				//add info about parent to array
+				$parent = $parents ? $parents[count($parents)-1] : null;
+				$this->tokens[$key][3] = $parent;
+				$this->tokens[$key][4] = $nesting;
+
+				//is current token possible parent in current level?
+				if ($this->isEqualToToken(T_CLASS, $key)) {
+					$lastParent = $key + 2;
+				} elseif ($this->isEqualToToken(T_INTERFACE, $key)) {
+					$lastParent = $key + 2;
+				} elseif ($this->isEqualToToken(T_FUNCTION, $key)) {
+					$lastParent = $key + 2;
+				} elseif ($this->isEqualToToken(T_CURLY_OPEN, $key)) {
+					$nesting++;
+					array_push($parents, '');//just a placeholder
+					if ($debug) {
+						echo "$nesting\{\$\n";
+					}
+				} elseif ($this->isEqualToToken(T_DOLLAR_OPEN_CURLY_BRACES, $key)) {
+					$nesting++;
+					array_push($parents, '');//just a placeholder
+					if ($debug) {
+						echo "$nesting\$\{\n";
+					}
+				}
+//				elseif ($this->isEqualToToken(T_DO, $key)) {
+//					$lastParent = $key;
+//				} elseif ($this->isEqualToToken(T_WHILE, $key)) {
+//					$lastParent = $key;
+//				} elseif ($this->isEqualToToken(T_FOR, $key)) {
+//					$lastParent = $key;
+//				}
+			} else {
+				if ($token == '{') {
+					$nesting++;
+					if ($debug) {
+						echo "$nesting{\n";
+					}
+					array_push($parents, $lastParent);
+				} elseif ($token == '}') {
+					if ($debug) {
+						echo "$nesting}\n";
+					}
+					$nesting--;
+					array_pop($parents);
+				}
+			}
 		}
 	}
 
@@ -42,7 +99,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 */
 	public function isEqualToToken($token, $offset = null) {
 		if ($offset === null) {
-			$offset = key($this);
+			$offset = $this->key();
 		}
 		if (!isset($this[$offset])) {
 			return false;
@@ -53,6 +110,47 @@ class PhpFileParser implements Iterator, ArrayAccess {
 			return $val == $token;
 		}
 		return is_array($val) && $val[0] == $token;
+	}
+
+	/**
+	 * @param $offset optional offset when checking other than current
+	 * @return mixed
+	 */
+	public function getDefiningFunctionName($offset = null) {
+		if ($offset === null) {
+			$offset = $this->key();
+		}
+		$parentKey = $this->tokens[$offset][3];
+		while ($parentKey !== null && !$this->isEqualToToken(T_FUNCTION, $parentKey - 2)) {
+			$parentKey = $this->tokens[$parentKey][3];
+		}
+		if ($parentKey !== null) {
+			$class = $this->getDefiningClassName($parentKey);
+			if ($class) {
+				return $class . '::' . $this->tokens[$parentKey][1];
+			} else {
+				return $this->tokens[$parentKey][1];
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param $offset optional offset when checking other than current
+	 * @return mixed
+	 */
+	public function getDefiningClassName($offset = null) {
+		if ($offset === null) {
+			$offset = $this->key();
+		}
+		$parentKey = $this->tokens[$offset][3];
+		while ($parentKey !== null && !$this->isEqualToToken(T_CLASS, $parentKey - 2)) {
+			$parentKey = $this->tokens[$parentKey][3];
+		}
+		if ($parentKey !== null) {
+			return $this->tokens[$parentKey][1];
+		}
+		return null;
 	}
 
 	/**
