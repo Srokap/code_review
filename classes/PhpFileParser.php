@@ -6,9 +6,19 @@
 class PhpFileParser implements Iterator, ArrayAccess {
 
 	/**
+	 * @var string original file name
+	 */
+	private $fileName = null;
+
+	/**
 	 * @var array
 	 */
 	private $tokens = null;
+
+	/**
+	 * @var string
+	 */
+	private $sha1hash = null;
 
 	/**
 	 * @param $fileName
@@ -16,6 +26,71 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * @throws Exception
 	 */
 	public function __construct($fileName) {
+		$this->validateFilePath($fileName);
+		$this->fileName = $fileName;
+
+		$contents = file_get_contents($fileName);
+		if ($contents === false) {
+			throw new IOException("Error while fetching contents of file $fileName");
+		}
+
+		$this->sha1hash = sha1_file($fileName);
+		if ($this->sha1hash === false) {
+			throw new IOException("Error while computing SHA1 hash of file $fileName");
+		}
+
+		$this->tokens = token_get_all($contents);
+		$this->computeNestingParentTokens();
+		if (!is_array($this->tokens)) {
+			throw new Exception("Failed to parse PHP contents of $fileName");
+		}
+	}
+
+	/**
+	 * Return fileds to serialize.
+	 *
+	 * @return array
+	 */
+	public function __sleep() {
+		return array('fileName', 'sha1hash', 'tokens');
+	}
+
+	/**
+	 * Verify class contents against original file to detect changes.
+	 */
+	public function __wakeup() {
+		$this->validateFileContents();
+	}
+
+	/**
+	 * Uses SHA1 hash to determine if file contents has changed since analysis.
+	 *
+	 * @return bool
+	 * @throws IOException
+	 * @throws LogicException
+	 */
+	private function validateFileContents() {
+		if (!$this->fileName) {
+			throw new LogicException("Missing file's path. Looks like severe internal error.");
+		}
+		$this->validateFilePath($this->fileName);
+		if (!$this->sha1hash) {
+			throw new LogicException("Missing file's SHA1 hash. Looks like severe internal error.");
+		}
+		if ($this->sha1hash !== sha1_file($this->fileName)) {
+			throw new IOException("The file on disk has changed and this " . get_class($this) . " class instance is no longer valid for use. Please create fresh instance.");
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if file exists and is readable.
+	 *
+	 * @param $fileName
+	 * @return bool
+	 * @throws IOException
+	 */
+	private function validateFilePath($fileName) {
 		if (!file_exists($fileName)) {
 			throw new IOException("File $fileName does not exists");
 		}
@@ -25,17 +100,14 @@ class PhpFileParser implements Iterator, ArrayAccess {
 		if (!is_readable($fileName)) {
 			throw new IOException("File $fileName is not readable");
 		}
-		$contents = file_get_contents($fileName);
-		if ($contents === false) {
-			throw new IOException("Error while fetching contents of file $fileName");
-		}
-		$this->tokens = token_get_all($contents);
-		$this->computeNestingParentTokens();
-		if (!is_array($this->tokens)) {
-			throw new Exception("Failed to parse PHP contents of $fileName");
-		}
+		return true;
 	}
 
+	/**
+	 * Compute parents of the tokens to easily determine containing methods and classes.
+	 *
+	 * @param bool $debug
+	 */
 	private function computeNestingParentTokens($debug = false) {
 		$nesting = 0;
 		$parents = array();

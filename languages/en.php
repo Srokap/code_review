@@ -11,7 +11,7 @@ $result = array(
 	'code_review:deprecated_list:solution' => 'Solution',
 	'code_review:deprecated_list:file_line' => 'In file %s on line %d',
 
-	'code_review:solution:replace_with' => 'Replace with %s',
+	'code_review:solution:basic_replace_with' => 'Simple replacement with %s',
 
 	'code_review:form' => 'Options',
 	'code_review:results' => 'Results',

@@ -35,7 +35,7 @@ foreach ($groups as $version => $group) {
 		$body .= "<td>" . ($data['fixinfoshort'] ? $data['fixinfoshort'] : '') . '</td>';
 		$solution = '';
 		if (isset($replaces[$name])) {
-			$solution = elgg_echo('code_review:solution:replace_with', array($replaces[$name]));
+			$solution = elgg_echo('code_review:solution:basic_replace_with', array($replaces[$name]));
 		}
 		$body .= "<td>" . $solution . "</td>"
 			. "</tr>";
