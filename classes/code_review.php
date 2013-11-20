@@ -93,17 +93,32 @@ class code_review {
 		return $vv;
 	}
 
+	/**
+	 * @val string
+	 */
+	const DEPRECATED_TAG_PREFIX = 'deprecated';
+
+	/**
+	 * Filtering predicate
+	 *
+	 * @param $e
+	 * @return bool
+	 */
+	public static function filterTagsByDeprecatedPrefix($e) {
+		return strpos($e, self::DEPRECATED_TAG_PREFIX) === 0;
+	}
+
 	private static function getDeprecatedInfoFromDocBlock($deprecatedInfo) {
-		$prefix = 'deprecated';
-		if (strpos($deprecatedInfo, '@' . $prefix) === false){
+		if (strpos($deprecatedInfo, '@' . self::DEPRECATED_TAG_PREFIX) === false){
 			return false;
 		} else {
 			$deprecatedInfo = explode('* @', $deprecatedInfo);
-			$deprecatedInfo = array_filter($deprecatedInfo, function($e) use ($prefix) {
-				return strpos($e, $prefix) === 0;
-			});
+			$deprecatedInfo = array_filter($deprecatedInfo, array(__CLASS__, 'filterTagsByDeprecatedPrefix'));
+//			$deprecatedInfo = array_filter($deprecatedInfo, function($e) use ($prefix) {
+//				return strpos($e, $prefix) === 0;
+//			});
 			$deprecatedInfo = array_shift($deprecatedInfo);
-			$deprecatedInfo = substr($deprecatedInfo, strlen($prefix));
+			$deprecatedInfo = substr($deprecatedInfo, strlen(self::DEPRECATED_TAG_PREFIX));
 
 			//strip leading whitechars and stars and closing tags
 			$deprecatedInfo = preg_replace('#\n\s*(?:\*\/?\s*)+#', "\n", $deprecatedInfo);
