@@ -14,10 +14,13 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testSerializationDataPreserve() {
-//		$tokens = new PhpFileParser();
+		$tokens = new PhpFileParser(__FILE__);
+		$serializedTokens = serialize($tokens);
+		$unserializedTokens = unserialize($serializedTokens);
+		$this->assertEquals($tokens, $unserializedTokens);
 	}
 
-	public function testSerializationFIleModifiedDetection() {
+	public function testSerializationFileModifiedDetection() {
 
 	}
 }
