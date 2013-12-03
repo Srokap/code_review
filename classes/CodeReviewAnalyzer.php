@@ -14,8 +14,9 @@ class CodeReviewAnalyzer {
 	const T_PLUGINS_ALL = 0;
 	const T_PLUGINS_ACTIVE = 1;
 	const T_PLUGINS_INACTIVE = 2;
-	
+
 	/**
+	 * @param $type
 	 * @return array
 	 */
 	public static function getPluginIds($type) {
@@ -42,9 +43,10 @@ class CodeReviewAnalyzer {
 		}
 		return $pluginsDirs;
 	}
-	
+
 	/**
 	 * @param Iterator $i
+	 * @param string     $maxVersion
 	 * @return array
 	 */
 	public function analyze(Iterator $i, $maxVersion = null) {
@@ -63,18 +65,21 @@ class CodeReviewAnalyzer {
 //		print_r($functions);
 //		echo '</pre>';
 
-		$cnt = 0;
-		foreach ($i as $filePath => $val) {
-			$result = $this->processFile($filePath, $functions, $instantReplacements);
-			if (!empty($result)) {
-				$this->stats[$filePath] = $result;
+//		$cnt = 0;
+		foreach ($i as $filePath => $file) {
+			if ($file instanceof SplFileInfo) {
+				$result = $this->processFile($filePath, $functions, $instantReplacements);
+				if (!empty($result)) {
+					$this->stats[$filePath] = $result;
+				}
 			}
 		}
 		return $this->stats;
 	}
-	
+
 	/**
-	 * @param string $language
+	 * @param $skipInactive
+	 * @return string
 	 */
 	public function ouptutReport($skipInactive) {
 		$result = '';
@@ -106,10 +111,13 @@ class CodeReviewAnalyzer {
 		
 		return $result;
 	}
-	
+
 	/**
 	 * Find function calls and extract
+	 *
 	 * @param string $filePath
+	 * @param array $functions
+	 * @param array $instantReplacements
 	 * @return array
 	 */
 	public function processFile($filePath, $functions, $instantReplacements) {

@@ -29,13 +29,11 @@ class CodeReviewAutoloader {
 				continue;
 			}
 			$path = $basePath . $file;
-			if (is_file($path)) {
-				if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) == 'php') {
-					$name = $prefix . pathinfo($path, PATHINFO_FILENAME);
-					$this->classMap[$name] = $path;
-				}
-			} elseif(is_dir($path)) {
+			if (is_dir($path)) {
 				$this->registerDirectory($path, $prefix . pathinfo($path, PATHINFO_FILENAME));
+			} elseif (strtolower(pathinfo($path, PATHINFO_EXTENSION)) == 'php') {
+				$name = $prefix . pathinfo($path, PATHINFO_FILENAME);
+				$this->classMap[$name] = $path;
 			}
 		}
 	}
@@ -48,6 +46,7 @@ class CodeReviewAutoloader {
 		if (isset($this->classMap[$className]) && file_exists($this->classMap[$className])) {
 			return include($this->classMap[$className]);
 		}
+		return false;
 	}
 
 	/**
@@ -57,4 +56,11 @@ class CodeReviewAutoloader {
 		return spl_autoload_register(array($this, 'load'));
 	}
 
-} 
+	/**
+	 * @return bool
+	 */
+	public function unregister() {
+		return spl_autoload_unregister(array($this, 'load'));
+	}
+
+}

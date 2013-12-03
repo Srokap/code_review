@@ -88,7 +88,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 *
 	 * @param $fileName
 	 * @return bool
-	 * @throws IOException
+	 * @throws CodeReview_IOException
 	 */
 	private function validateFilePath($fileName) {
 		if (!file_exists($fileName)) {
@@ -120,23 +120,13 @@ class PhpFileParser implements Iterator, ArrayAccess {
 				$this->tokens[$key][4] = $nesting;
 
 				//is current token possible parent in current level?
-				if ($this->isEqualToToken(T_CLASS, $key)) {
+				if ($this->isEqualToAnyToken(array(T_CLASS, T_INTERFACE, T_FUNCTION), $key)) {
 					$lastParent = $key + 2;
-				} elseif ($this->isEqualToToken(T_INTERFACE, $key)) {
-					$lastParent = $key + 2;
-				} elseif ($this->isEqualToToken(T_FUNCTION, $key)) {
-					$lastParent = $key + 2;
-				} elseif ($this->isEqualToToken(T_CURLY_OPEN, $key)) {
+				} elseif ($this->isEqualToAnyToken(array(T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES), $key)) {
 					$nesting++;
 					array_push($parents, '');//just a placeholder
 					if ($debug) {
 						echo "$nesting\{\$\n";
-					}
-				} elseif ($this->isEqualToToken(T_DOLLAR_OPEN_CURLY_BRACES, $key)) {
-					$nesting++;
-					array_push($parents, '');//just a placeholder
-					if ($debug) {
-						echo "$nesting\$\{\n";
 					}
 				}
 //				elseif ($this->isEqualToToken(T_DO, $key)) {
@@ -165,8 +155,22 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	}
 
 	/**
+	 * @param array $tokens
+	 * @param int   $offset
+	 * @return bool
+	 */
+	public function isEqualToAnyToken($tokens, $offset = null) {
+		foreach ($tokens as $token) {
+			if ($this->isEqualToToken($token, $offset)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @param $token string|int individual token identifier or predefined T_* constant value for complex tokens
-	 * @param $offset optional offset when checking other than current
+	 * @param int $offset optional offset when checking other than current
 	 * @return bool
 	 */
 	public function isEqualToToken($token, $offset = null) {
@@ -185,7 +189,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	}
 
 	/**
-	 * @param $offset optional offset when checking other than current
+	 * @param int $offset optional offset when checking other than current
 	 * @return mixed
 	 */
 	public function getDefiningFunctionName($offset = null) {
@@ -270,7 +274,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * @return void Any returned value is ignored.
 	 */
 	public function next() {
-		return next($this->tokens);
+		next($this->tokens);
 	}
 
 	/**
@@ -303,7 +307,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * @return void Any returned value is ignored.
 	 */
 	public function rewind() {
-		return rewind($this->tokens);
+		rewind($this->tokens);
 	}
 
 	/**

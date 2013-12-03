@@ -14,6 +14,7 @@ class PhpTokensFilterIterator extends FilterIterator {
 	/**
 	 * @param PhpFileParser $iterator
 	 * @param array         $allowedTokens
+	 * @param int           $offset
 	 */
 	function __construct(PhpFileParser $iterator, $allowedTokens = array(), $offset = null) {
 		if (is_array($allowedTokens)) {

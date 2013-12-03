@@ -54,6 +54,7 @@ class code_review {
 	}
 
 	/**
+	 * @param string $subPath
 	 * @return RegexIterator
 	 */
 	static function getDeprecatedIterator($subPath = 'engine/') {
@@ -62,9 +63,11 @@ class code_review {
 		$i = new RegexIterator($i, "/.*\.php/");
 		return $i;
 	}
-	
+
 	/**
-	 * @return RegexIterator
+	 * @param string $subPath
+	 * @param bool   $skipInactive
+	 * @return CodeReviewFileFilterIterator
 	 */
 	static function getPhpFilesIterator($subPath = 'engine/', $skipInactive = false) {
 		$i = new RecursiveDirectoryIterator(elgg_get_config('path') . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -81,13 +84,15 @@ class code_review {
 		$vv = array();
 		
 		foreach ($i as $file) {
-			if (preg_match('#^deprecated-([0-9\.]*)$#', $file->getBasename('.php'), $matches)) {
-				$version = $matches[1];
-			} else {
-				$version = null;
-			}
-			if ($version) {
-				$vv[] = $version;
+			if ($file instanceof SplFileInfo) {
+				if (preg_match('#^deprecated-([0-9\.]*)$#', $file->getBasename('.php'), $matches)) {
+					$version = $matches[1];
+				} else {
+					$version = null;
+				}
+				if ($version) {
+					$vv[] = $version;
+				}
 			}
 		}
 		return $vv;
