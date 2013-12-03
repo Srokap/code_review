@@ -21,9 +21,8 @@ class CodeReviewAutoloader {
 	 */
 	private function registerDirectory($basePath, $prefix = '') {
 		$basePath = str_replace('\\', '/', $basePath);
-		if ($basePath[strlen($basePath) - 1] != '/') {
-			$basePath .= '/';
-		}
+		$basePath = rtrim($basePath, '/') . '/';
+		$prefix = ($prefix ? $prefix . '_' : '' );
 		$files = scandir($basePath);
 		foreach ($files as $file) {
 			if ($file[0] == '.') {
@@ -32,11 +31,11 @@ class CodeReviewAutoloader {
 			$path = $basePath . $file;
 			if (is_file($path)) {
 				if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) == 'php') {
-					$name = ($prefix ? $prefix . '_' : '' ) . pathinfo($path, PATHINFO_FILENAME);
+					$name = $prefix . pathinfo($path, PATHINFO_FILENAME);
 					$this->classMap[$name] = $path;
 				}
 			} elseif(is_dir($path)) {
-				$this->registerDirectory($path, ($prefix ? $prefix . '_' : '' ) . pathinfo($path, PATHINFO_FILENAME));
+				$this->registerDirectory($path, $prefix . pathinfo($path, PATHINFO_FILENAME));
 			}
 		}
 	}
