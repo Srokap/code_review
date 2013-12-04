@@ -2,3 +2,7 @@ code_review [![Build Status](https://secure.travis-ci.org/Srokap/code_review.png
 ==================
 
 Plugin for PHP code analysis and refactoring.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Srokap/code_review/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
