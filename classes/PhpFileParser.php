@@ -307,7 +307,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * @return void Any returned value is ignored.
 	 */
 	public function rewind() {
-		rewind($this->tokens);
+		reset($this->tokens);
 	}
 
 	/**
