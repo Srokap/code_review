@@ -45,6 +45,7 @@ class PhpTokensFilterIterator extends FilterIterator {
 		$key = parent::key();
 		$innerIterator = $this->getInnerIterator();
 		$token = $innerIterator[$key - $this->offset];
+		$label = null;
 		if (is_array($token)) {
 			$label = $token[0];
 		} elseif (is_string($token)) {

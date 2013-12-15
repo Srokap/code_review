@@ -67,10 +67,15 @@ class code_review {
 	/**
 	 * @param string $subPath
 	 * @param bool   $skipInactive
+	 * @throws CodeReview_IOException
 	 * @return CodeReviewFileFilterIterator
 	 */
 	static function getPhpFilesIterator($subPath = 'engine/', $skipInactive = false) {
-		$i = new RecursiveDirectoryIterator(elgg_get_config('path') . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
+		$path = elgg_get_config('path') . $subPath;
+		if (!file_exists($path)) {
+			throw new CodeReview_IOException("Invalid subPath specified. $path does not exists!");
+		}
+		$i = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
 		$i = new CodeReviewFileFilterIterator($i, $skipInactive);
@@ -162,7 +167,7 @@ class code_review {
 	 * @param string $maxVersion
 	 * @return array
 	 */
-	static function getDeprecatedFunctionsList($maxVersion = '1.8') {
+	static function getDeprecatedFunctionsList($maxVersion = '') {
 		$i1 = self::getDeprecatedIterator('engine/lib/');
 		$i1 = new RegexIterator($i1, "/deprecated-.*/");
 		$i2 = self::getDeprecatedIterator('engine/classes/');

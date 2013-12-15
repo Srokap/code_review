@@ -10,7 +10,19 @@ class CodeReviewAnalyzer {
 	 * @var string
 	 */
 	protected $maxVersion;
-	
+
+	/**
+	 * Array of basic function names replacements
+	 *
+	 * @var array
+	 */
+	protected $instantReplacements;
+
+	/**
+	 * @var bool
+	 */
+	protected $fixProblems;
+
 	const T_PLUGINS_ALL = 0;
 	const T_PLUGINS_ACTIVE = 1;
 	const T_PLUGINS_INACTIVE = 2;
@@ -46,30 +58,29 @@ class CodeReviewAnalyzer {
 
 	/**
 	 * @param Iterator $i
-	 * @param string     $maxVersion
+	 * @param array    $options
 	 * @return array
 	 */
-	public function analyze(Iterator $i, $maxVersion = null) {
+	public function analyze(Iterator $i, array $options = array()) {
+
+		$this->maxVersion = elgg_extract('maxVersion', $options);
+		if (!$this->maxVersion) {
+			$this->maxVersion = elgg_get_version(true);
+		}
+
+		$this->fixProblems = elgg_extract('fixProblems', $options, false);
 
 		$fixer = new CodeFixer();
-		$instantReplacements = $fixer->getBasicFunctionRenames();
+		$this->instantReplacements = $fixer->getBasicFunctionRenames($this->maxVersion);
 
 		$this->stats = array();
-		if (!$maxVersion) {
-			$maxVersion = elgg_get_version(true);
-		}
-		$this->maxVersion = $maxVersion;
-		
-		$functions = code_review::getDeprecatedFunctionsList($maxVersion);
-//		echo '<pre>';
-//		print_r($functions);
-//		echo '</pre>';
 
-//		$cnt = 0;
+		$functions = code_review::getDeprecatedFunctionsList($this->maxVersion);
+
 		foreach ($i as $filePath => $file) {
 			if ($file instanceof SplFileInfo) {
-				$result = $this->processFile($filePath, $functions, $instantReplacements);
-				if (!empty($result)) {
+				$result = $this->processFile($filePath, $functions);
+				if (!empty($result['problems'])) {
 					$this->stats[$filePath] = $result;
 				}
 			}
@@ -86,24 +97,33 @@ class CodeReviewAnalyzer {
 		
 		$result .= "Max version: " . $this->maxVersion . "\n";
 		$result .= "Skipped inactive plugins: " . ($skipInactive ? 'yes' : 'no') . "\n";
-		
-// 		$result .= print_r($this->stats, true);
-		
-		$total = 0;
-		foreach ($this->stats as $filePath => $items) {
-			$total += count($items);
+		$result .= "Attempt to fix problems: " . ($this->fixProblems ? 'yes' : 'no') . "\n";
+
+		foreach (array('problems', 'fixes') as $type) {
+			$total = 0;
+			foreach ($this->stats as $items) {
+				$total += count($items[$type]);
+			}
+			$result .= "Found $total $type in " . count($this->stats) . " files\n";
 		}
-		$result .= "Found $total problems in " . count($this->stats) . " files\n";
-		
+
 		/*
 		 * Full report
 		 */
 		foreach ($this->stats as $filePath => $items) {
 			$result .= "\nIn file: " . $filePath . "\n";
-			foreach ($items as $row) {
+
+			//problems
+			foreach ($items['problems'] as $row) {
 				list($data, $function, $line) = $row;
 				$version = $data['version'];
 				$result .= "    Line $line:\tFunction call: $function (deprecated since $version)" . ($data['fixinfoshort'] ? ' ' . $data['fixinfoshort'] : '') . "\n";
+			}
+
+			//fixes
+			foreach ($items['fixes'] as $row) {
+				list($before, $after, $line) = $row;
+				$result .= "    Line $line:\tReplacing: '$before' with '$after'\n";
 			}
 		}
 		
@@ -117,11 +137,13 @@ class CodeReviewAnalyzer {
 	 *
 	 * @param string $filePath
 	 * @param array $functions
-	 * @param array $instantReplacements
 	 * @return array
 	 */
-	public function processFile($filePath, $functions, $instantReplacements) {
-		$result = array();
+	public function processFile($filePath, $functions) {
+		$result = array(
+			'problems' => array(),
+			'fixes' => array(),
+		);
 		$phpTokens = new PhpFileParser($filePath);
 		$changes = 0;
 		foreach ($phpTokens as $key => $row) {
@@ -133,29 +155,40 @@ class CodeReviewAnalyzer {
 					&& !$phpTokens->isEqualToToken(T_FUNCTION, $key-2) //not definition
 				) {
 					$definingFunctionName = $phpTokens->getDefiningFunctionName($key);
+
 					//we're skipping deprecated calls that are in feprecated function itself
 					if (!$definingFunctionName || !isset($functions[$definingFunctionName])) {
-						$result[] = array($functions[$functionName], $functionName, $lineNumber);
+						$result['problems'][] = array($functions[$functionName], $functionName, $lineNumber);
 //						var_dump($filePath, $row, $phpTokens->getDefiningClassName($key), $phpTokens->getDefiningFunctionName($key));
 					} else {
 //						var_dump('SKIP', $functionName, $definingFunctionName);
 					}
 
 					//do instant replacement
-//					if (isset($instantReplacements[$functionName])) {
-//						$phpTokens[$key] = array(T_STRING, $instantReplacements[$functionName]);
-//						var_dump('fixing', $functionName);
-//						$changes++;
-//					}
-
-//					if ($phpTokens->exportPhp() != file_get_contents($filePath)) {
-//						die($filePath);
-//					}
+					if ($this->fixProblems) {
+						if (isset($this->instantReplacements[$functionName])) {
+							$phpTokens[$key] = array(T_STRING, $this->instantReplacements[$functionName]);
+							$result['fixes'][] = array($functionName, $this->instantReplacements[$functionName], $lineNumber);
+//							var_dump('fixing', $functionName);
+							$changes++;
+						}
+					}
 				}
 			}
 		}
 		if ($changes) {
-			$phpTokens->exportPhp($filePath);
+//			if ($phpTokens->exportPhp() != file_get_contents($filePath)) {
+//				echo '<pre>';
+//				print_r(htmlentities($phpTokens->exportPhp()));
+//				echo '</pre>';
+//				die($filePath);
+//			}
+
+			try {
+				$phpTokens->exportPhp($filePath);
+			} catch (CodeReview_IOException $e) {
+				echo '*** Error: ' . $e->getMessage() . " ***\n";
+			}
 		}
 		unset($phpTokens);
 		return $result;

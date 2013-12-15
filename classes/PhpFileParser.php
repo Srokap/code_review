@@ -212,7 +212,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	}
 
 	/**
-	 * @param $offset optional offset when checking other than current
+	 * @param int $offset optional offset when checking other than current
 	 * @return mixed
 	 */
 	public function getDefiningClassName($offset = null) {

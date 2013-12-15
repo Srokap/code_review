@@ -7,6 +7,7 @@ echo elgg_view('code_review/navigation');
 //analysis form
 $body = elgg_view_form('code_review/select', array(
 	'action' => '#',
+	'disable_security' => true,
 ), array(
 	'version' => $version,
 ));
