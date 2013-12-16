@@ -3,18 +3,27 @@
 	<id>code_review</id>
 	<name>Code Analyzer</name>
 	<author>Paweł Sroka (srokap@gmail.com)</author>
-	<version>1.0.1</version>
-	<description>Analyzes plugins code and provides basic information on code quality, compatibility and structure.</description>
+	<version>1.0.2</version>
+	<description>Analyzes plugins code and provides basic information on code quality, compatibility and structure.
+	</description>
 	<website>https://srokap.pl/</website>
 	<copyright>(C) Paweł Sroka 2013</copyright>
 	<license>http://opensource.org/licenses/MIT</license>
-	
+
 	<category>admin</category>
 	<category>tools</category>
 
 	<screenshot>
 		<path>screenshots/analysis.png</path>
 		<description>Typical analysis view</description>
+	</screenshot>
+	<screenshot>
+		<path>screenshots/deprecated_list.png</path>
+		<description>Deprecated functions summary and solutions</description>
+	</screenshot>
+	<screenshot>
+		<path>screenshots/code_fixing.png</path>
+		<description>Automatic code fixing</description>
 	</screenshot>
 
 	<requires>
