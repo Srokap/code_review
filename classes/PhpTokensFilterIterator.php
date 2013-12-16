@@ -16,7 +16,7 @@ class PhpTokensFilterIterator extends FilterIterator {
 	 * @param array         $allowedTokens
 	 * @param int           $offset
 	 */
-	function __construct(PhpFileParser $iterator, $allowedTokens = array(), $offset = null) {
+	public function __construct(PhpFileParser $iterator, $allowedTokens = array(), $offset = null) {
 		if (is_array($allowedTokens)) {
 			$this->allowedTokens = $allowedTokens;
 		} else {
@@ -41,7 +41,7 @@ class PhpTokensFilterIterator extends FilterIterator {
 	/**
 	 * @return bool
 	 */
-	function accept () {
+	public function accept () {
 		$key = parent::key();
 		$innerIterator = $this->getInnerIterator();
 		$token = $innerIterator[$key - $this->offset];

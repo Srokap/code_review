@@ -159,31 +159,18 @@ class CodeReviewAnalyzer {
 					//we're skipping deprecated calls that are in feprecated function itself
 					if (!$definingFunctionName || !isset($functions[$definingFunctionName])) {
 						$result['problems'][] = array($functions[$functionName], $functionName, $lineNumber);
-//						var_dump($filePath, $row, $phpTokens->getDefiningClassName($key), $phpTokens->getDefiningFunctionName($key));
-					} else {
-//						var_dump('SKIP', $functionName, $definingFunctionName);
 					}
 
 					//do instant replacement
-					if ($this->fixProblems) {
-						if (isset($this->instantReplacements[$functionName])) {
-							$phpTokens[$key] = array(T_STRING, $this->instantReplacements[$functionName]);
-							$result['fixes'][] = array($functionName, $this->instantReplacements[$functionName], $lineNumber);
-//							var_dump('fixing', $functionName);
-							$changes++;
-						}
+					if ($this->fixProblems && isset($this->instantReplacements[$functionName])) {
+						$phpTokens[$key] = array(T_STRING, $this->instantReplacements[$functionName]);
+						$result['fixes'][] = array($functionName, $this->instantReplacements[$functionName], $lineNumber);
+						$changes++;
 					}
 				}
 			}
 		}
 		if ($changes) {
-//			if ($phpTokens->exportPhp() != file_get_contents($filePath)) {
-//				echo '<pre>';
-//				print_r(htmlentities($phpTokens->exportPhp()));
-//				echo '</pre>';
-//				die($filePath);
-//			}
-
 			try {
 				$phpTokens->exportPhp($filePath);
 			} catch (CodeReview_IOException $e) {

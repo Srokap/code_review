@@ -51,6 +51,6 @@ elgg.code_review.submitForm = function () {
 			$('#code-review-loader').addClass('hidden');
 		}
 	});
-}
+};
 
 elgg.register_hook_handler('init', 'system', elgg.code_review.init);

@@ -5,13 +5,13 @@
  * @author Paweł Sroka (srokap@gmail.com)
  */
 class code_review {
-	static function boot() {
+	public static function boot() {
 // 		require_once elgg_get_config('pluginspath').__CLASS__.'/vendors/Zend/Loader/StandardAutoloader.php';
 // 		$loader = new Zend\Loader\StandardAutoloader(array('autoregister_zf' => true));
 // 		$loader->register();
 	}
-	
-	static function init() {
+
+	public static function init() {
 // 		self::playground();
 
 		elgg_register_event_handler('pagesetup', 'system', array(__CLASS__, 'pagesetup'));
@@ -24,8 +24,8 @@ class code_review {
 		elgg_register_js('code_review', elgg_get_config('wwwroot') . 'mod/'
 			. __CLASS__ . '/views/default/js/code_review.js');
 	}
-	
-	static function pagesetup() {
+
+	public static function pagesetup() {
 		if (elgg_get_context() == 'admin') {
 			elgg_register_menu_item('page', array(
 				'name' => 'code/diagnostic',
@@ -37,7 +37,7 @@ class code_review {
 		}
 	}
 
-	static function menu_register() {
+	public static function menu_register() {
 		$result = array();
 		$result[] = ElggMenuItem::factory(array(
 			'name' => 'admin/code/diagnostic',
@@ -57,7 +57,7 @@ class code_review {
 	 * @param string $subPath
 	 * @return RegexIterator
 	 */
-	static function getDeprecatedIterator($subPath = 'engine/') {
+	public static function getDeprecatedIterator($subPath = 'engine/') {
 		$i = new RecursiveDirectoryIterator(elgg_get_config('path') . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
@@ -70,7 +70,7 @@ class code_review {
 	 * @throws CodeReview_IOException
 	 * @return CodeReviewFileFilterIterator
 	 */
-	static function getPhpFilesIterator($subPath = 'engine/', $skipInactive = false) {
+	public static function getPhpFilesIterator($subPath = 'engine/', $skipInactive = false) {
 		$path = elgg_get_config('path') . $subPath;
 		if (!file_exists($path)) {
 			throw new CodeReview_IOException("Invalid subPath specified. $path does not exists!");
@@ -81,8 +81,8 @@ class code_review {
 		$i = new CodeReviewFileFilterIterator($i, $skipInactive);
 		return $i;
 	}
-	
-	static function getVersionsList() {
+
+	public static function getVersionsList() {
 		$i = self::getDeprecatedIterator('engine/lib/');
 		$i = new RegexIterator($i, "/deprecated-.*/");
 		
@@ -167,7 +167,7 @@ class code_review {
 	 * @param string $maxVersion
 	 * @return array
 	 */
-	static function getDeprecatedFunctionsList($maxVersion = '') {
+	public static function getDeprecatedFunctionsList($maxVersion = '') {
 		$i1 = self::getDeprecatedIterator('engine/lib/');
 		$i1 = new RegexIterator($i1, "/deprecated-.*/");
 		$i2 = self::getDeprecatedIterator('engine/classes/');
@@ -263,7 +263,7 @@ class code_review {
 	 *
 	 * @return array Array of directory names (not full paths)
 	 */
-	static function getPluginDirsInDir($dir = null) {
+	public static function getPluginDirsInDir($dir = null) {
 		if (!$dir) {
 			$dir = elgg_get_plugins_path();
 		}

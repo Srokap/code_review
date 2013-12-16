@@ -1,7 +1,7 @@
 <?php
 class CodeReviewFileFilterIterator extends FilterIterator {
 	
-	function __construct($iterator, $skipInactive = false) {
+	public function __construct($iterator, $skipInactive = false) {
 		if ($skipInactive) {
 			$pluginsDirs = CodeReviewAnalyzer::getPluginIds(CodeReviewAnalyzer::T_PLUGINS_INACTIVE);
 			foreach ($pluginsDirs as $pluginDir) {
@@ -22,8 +22,8 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 		'documentation/.*',
 		'vendors/.*',
 	);
-	
-	function accept () {
+
+	public function accept () {
 		//TODO blacklisting documentation, disabled plugins and installation script
 		$file = $this->current();
 		if ($file instanceof SplFileInfo) {

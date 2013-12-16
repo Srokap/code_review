@@ -41,8 +41,8 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 
 	public function testSerializationOutput() {
 		$tests = $this->getTestsPhpFiles();
-		foreach ($tests as $name => $test) {
-			list($inPath, $outPath) = $test;
+		foreach ($tests as $test) {
+			list($inPath, ) = $test;
 			$tokens = new PhpFileParser($inPath);
 
 			$serializedClass = serialize($tokens);
@@ -58,8 +58,8 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 
 	public function testSourcePreserve() {
 		$tests = $this->getTestsPhpFiles();
-		foreach ($tests as $name => $test) {
-			list($inPath, $outPath) = $test;
+		foreach ($tests as $test) {
+			list($inPath, ) = $test;
 			$tokens = new PhpFileParser($inPath);
 
 			$actual = $tokens->exportPhp();
@@ -75,8 +75,8 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 
 	public function testArrayAndIteratorInterfaces() {
 		$tests = $this->getTestsPhpFiles();
-		foreach ($tests as $name => $test) {
-			list($inPath, $outPath) = $test;
+		foreach ($tests as $test) {
+			list($inPath, ) = $test;
 
 			$tokens = new PhpFileParser($inPath);
 
@@ -103,8 +103,8 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 
 	public function testSerializationFileModifiedDetection() {
 		$tests = $this->getTestsPhpFiles();
-		foreach ($tests as $name => $test) {
-			list($inPath, $outPath) = $test;
+		foreach ($tests as $test) {
+			list($inPath, ) = $test;
 
 			$content = file_get_contents($inPath);
 			$this->assertNotEmpty($content);
