@@ -7,7 +7,7 @@ class CodeReviewFileFilterIteratorTest extends PHPUnit_Framework_TestCase {
 	public function testIteratingOverFiles() {
 		$paths = array(
 			dirname(__FILE__) . '/test_files/fake_elgg/',
-			dirname(__FILE__) . '/test_files/fake_elgg\\',
+			dirname(__FILE__) . '/test_files/fake_elgg' . DIRECTORY_SEPARATOR,
 			dirname(__FILE__) . '/test_files/fake_elgg',
 		);
 		foreach ($paths as $path) {
