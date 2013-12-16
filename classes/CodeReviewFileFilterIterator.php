@@ -1,7 +1,24 @@
 <?php
 class CodeReviewFileFilterIterator extends FilterIterator {
-	
-	public function __construct($iterator, $skipInactive = false) {
+
+	/**
+	 * @var string
+	 */
+	private $basePath;
+
+	/**
+	 * @param Iterator $iterator
+	 * @param string   $basePath
+	 * @param bool     $skipInactive
+	 * @throws CodeReview_IOException
+	 */
+	public function __construct($iterator, $basePath, $skipInactive = false) {
+		if (!is_dir($basePath)) {
+			throw new CodeReview_IOException("Directory $basePath does not exists");
+		}
+		$basePath = rtrim($basePath, '/\\') . '/';
+		$this->basePath = $basePath;
+
 		if ($skipInactive) {
 			$pluginsDirs = CodeReviewAnalyzer::getPluginIds(CodeReviewAnalyzer::T_PLUGINS_INACTIVE);
 			foreach ($pluginsDirs as $pluginDir) {
@@ -30,10 +47,9 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 			$path = $file->getPathname();
 			$path = str_replace('\\', '/', $path);
 			$path = str_replace('//', '/', $path);
-			$path = substr($path, strlen(elgg_get_config('path')));
+			$path = substr($path, strlen($this->basePath));
 			foreach ($this->blacklist as $pattern) {
 				if (preg_match("#^$pattern$#", $path)) {
-// 					var_dump($path);
 					return false;
 				}
 			}
