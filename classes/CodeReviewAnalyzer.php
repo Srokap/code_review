@@ -92,9 +92,9 @@ class CodeReviewAnalyzer {
 	 * @param $skipInactive
 	 * @return string
 	 */
-	public function ouptutReport($skipInactive) {
+	private function ouptutReportHeader($skipInactive) {
 		$result = '';
-		
+
 		$result .= "Max version: " . $this->maxVersion . "\n";
 		$result .= "Skipped inactive plugins: " . ($skipInactive ? 'yes' : 'no') . "\n";
 		$result .= "Attempt to fix problems: " . ($this->fixProblems ? 'yes' : 'no') . "\n";
@@ -106,6 +106,16 @@ class CodeReviewAnalyzer {
 			}
 			$result .= "Found $total $type in " . count($this->stats) . " files\n";
 		}
+		return $result;
+	}
+
+	/**
+	 * @param $skipInactive
+	 * @return string
+	 */
+	public function ouptutReport($skipInactive) {
+
+		$result = $this->ouptutReportHeader($skipInactive);
 
 		/*
 		 * Full report

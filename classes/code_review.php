@@ -124,9 +124,6 @@ class code_review {
 		} else {
 			$deprecatedInfo = explode('* @', $deprecatedInfo);
 			$deprecatedInfo = array_filter($deprecatedInfo, array(__CLASS__, 'filterTagsByDeprecatedPrefix'));
-//			$deprecatedInfo = array_filter($deprecatedInfo, function($e) use ($prefix) {
-//				return strpos($e, $prefix) === 0;
-//			});
 			$deprecatedInfo = array_shift($deprecatedInfo);
 			$deprecatedInfo = substr($deprecatedInfo, strlen(self::DEPRECATED_TAG_PREFIX));
 
@@ -143,8 +140,6 @@ class code_review {
 			$deprecatedInfo = preg_replace('#\{\@[a-z]+\s([^\}]+)\}#', '$1', $deprecatedInfo);
 			//trim possible whitechars at the end
 			$deprecatedInfo = trim($deprecatedInfo);
-
-	//		var_dump($deprecatedInfo);
 
 			$shortDeprecatedInfo = $deprecatedInfo;
 			if (($pos = strpos($shortDeprecatedInfo, "\n")) !== false) {
@@ -180,7 +175,6 @@ class code_review {
 		
 		foreach ($i as $file) {
 			if ($file instanceof SplFileInfo) {
-// 				var_dump($file->getPathname());
 				if (preg_match('#^deprecated-([0-9\.]*)$#', $file->getBasename('.php'), $matches)) {
 					$version = $matches[1];
 				} else {
@@ -193,66 +187,64 @@ class code_review {
 				}
 
 				$tokens = new PhpFileParser($file->getPathname());
-				$className = null;
-//				$nesting = 0;
-
-				foreach ($tokens as $key => $token) {
-					if ($tokens->isEqualToToken(T_INTERFACE, $key)) {
-						//we don't process interfaces for deprecated functions
-						break;
-					}
-					if ($tokens->isEqualToToken(T_CLASS, $key)) {
-						$className = $tokens[$key+2][1];
-					}
-
-					if (is_array($token) && $token[0] == T_FUNCTION) {
-						if ($className) {
-							$functionName = $className . '::' . $tokens[$key+2][1];
-							$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
-						} else {
-							$functionName = $tokens[$key+2][1];
-							$reflection = new ReflectionFunction($functionName);
-						}
-
-						//is it deprecated? may not be
-
-//						var_dump($token, $tokens->isEqualToToken(T_FUNCTION, $key));
-						//check if non empty version and try go guess
-						$data = array(
-							'version' => $version,
-							'file' => $file->getPathname(),
-							'line' => $token[2],
-						);
-
-						$docBlock = $reflection->getDocComment();
-						if ($docBlock) {
-							$info = self::getDeprecatedInfoFromDocBlock($docBlock);
-							if (!$info) {
-								//skipping - not deprecated
-								continue;
-							}
-							$data = array_merge($data, $info);
-						}
-
-						$functs[$functionName] = $data;
-					}
-				}
-					
-// 				require_once $file->getPathname();
-// 		 		FIXME not implemented in ZF2
-// 				$ref = new Zend\Code\Reflection\FileReflection($file->getPathname());
-// 				$db = $ref->getDocBlock();
-// 				if ($db) {
-// 					var_dump($db->getContents());
-// 				}
-// 				var_dump($ref->getFunctions());
-// 				foreach ($ref->getFunctions() as $function) {
-// 					var_dump($function->getDocBlock()->getContents());
-// 				}
+				$functs = array_merge($functs, self::getDeprecatedFunctionsFromTokens($tokens, $file, $version));
 			}
 		}
 		return $functs;
 	}
+
+	/**
+	 * Redurns deprecated functions from particular file.
+	 *
+	 * @param PhpFileParser $tokens
+	 * @param SplFileInfo   $file
+	 * @param               $version
+	 * @return array
+	 */
+	private static function getDeprecatedFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file, $version) {
+		$className = null;
+		$functs = array();
+		foreach ($tokens as $key => $token) {
+			if ($tokens->isEqualToToken(T_INTERFACE, $key)) {
+				//we don't process interfaces for deprecated functions
+				break;
+			}
+			if ($tokens->isEqualToToken(T_CLASS, $key)) {
+				$className = $tokens[$key+2][1];
+			}
+
+			if ($tokens->isEqualToToken(T_FUNCTION, $key)) {
+				if ($className) {
+					$functionName = $className . '::' . $tokens[$key+2][1];
+					$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+				} else {
+					$functionName = $tokens[$key+2][1];
+					$reflection = new ReflectionFunction($functionName);
+				}
+
+				//check if non empty version and try go guess
+				$data = array(
+					'version' => $version,
+					'file' => $file->getPathname(),
+					'line' => $token[2],
+				);
+
+				$docBlock = $reflection->getDocComment();
+				if ($docBlock) {
+					$info = self::getDeprecatedInfoFromDocBlock($docBlock);
+					if (!$info) {
+						//skipping - not deprecated
+						continue;
+					}
+					$data = array_merge($data, $info);
+				}
+
+				$functs[$functionName] = $data;
+			}
+		}
+		return $functs;
+	}
+
 
 	/**
 	 * Returns a list of plugin directory names from a base directory.
