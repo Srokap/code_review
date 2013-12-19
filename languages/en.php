@@ -1,5 +1,5 @@
 <?php
-$result = [
+$result = array(
 	'admin:code' => 'Code',
 	'admin:code:diagnostic' => 'Code diagnostic',
 	'admin:code:diagnostic:deprecated_list' => 'Deprecated functions list',
@@ -27,6 +27,6 @@ $result = [
 		Make sure that you have backup version of the code. Using this feature requires write access to the whole installation directory. DO NOT USE ON PRODUCTION SITE!',
 	'code_review:js:confirm_changes' => 'Are you sure you want to modify source code? That\'s the last chance to reconsider!',
 
-];
+);
 add_translation('en', $result);//let's be nice for 1.8 users
 // return $result;//1.9 standard
