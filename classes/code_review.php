@@ -6,6 +6,10 @@
  */
 class code_review {
 	public static function boot() {
+		if (version_compare(elgg_get_version(true), '1.9', '<')) {
+			$autoloader = new CodeReviewAutoloader();
+			$autoloader->register();
+		}
 // 		require_once elgg_get_config('pluginspath').__CLASS__.'/vendors/Zend/Loader/StandardAutoloader.php';
 // 		$loader = new Zend\Loader\StandardAutoloader(array('autoregister_zf' => true));
 // 		$loader->register();

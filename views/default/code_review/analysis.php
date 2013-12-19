@@ -1,6 +1,6 @@
 <?php
 
-elgg_admin_gatekeeper();
+admin_gatekeeper();
 
 ini_set('max_execution_time', 0);
 
