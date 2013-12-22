@@ -1,0 +1,24 @@
+{
+	"name": "srokap/code_review",
+	"type": "elgg-plugin",
+	"description": "Elgg plugin that analyzes plugins code and provides basic information on code quality, compatibility and structure.",
+	"homepage": "https://github.com/Srokap/code_review",
+	"minimum-stability": "stable",
+	"keywords": ["elgg", "plugin", "tools", "analyzer"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Paweł Sroka",
+			"email": "srokap@gmail.com"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/Srokap/code_review/issues"
+	},
+	"autoload": {
+		"classmap": ["classes/"]
+	},
+	"require": {
+		"composer/installers": "~1.0"
+	}
+}
