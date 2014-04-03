@@ -205,24 +205,31 @@ class CodeReviewAnalyzer {
 		$phpTokens = new PhpFileParser($filePath);
 		$changes = 0;
 		foreach ($phpTokens as $key => $row) {
+			// get non trivial tokens
 			if (is_array($row)) {
 				list($token, $functionName, $lineNumber) = $row;
 				$originalFunctionName = $functionName;
+
+				// prepare normalized version of function name for matching
 				$functionName = strtolower($functionName);
-				if ($token == T_CONSTANT_ENCAPSED_STRING && function_exists(trim($functionName, '\'""'))) {
-					$functionName = trim($functionName, '\'""');
-					if (!in_array($functionName, $this->calledFunctions)) {
-						$this->calledFunctions[] = $functionName;
-					}
-				}
+//				if ($token == T_CONSTANT_ENCAPSED_STRING && function_exists(trim($functionName, '\'""'))) {
+//					$functionName = trim($functionName, '\'""');
+//					if (!in_array($functionName, $this->calledFunctions)) {
+//						$this->calledFunctions[] = $functionName;
+//					}
+//				}
+
+				// check for function call
 				if ($token == T_STRING
 					&& !$phpTokens->isEqualToToken(T_OBJECT_OPERATOR, $key-1) //not method
 					&& !$phpTokens->isEqualToToken(T_DOUBLE_COLON, $key-1) //not static method
 					&& !$phpTokens->isEqualToToken(T_FUNCTION, $key-2) //not definition
 				) {
+					// mark function as called
 					if (function_exists($functionName) && !in_array($functionName, $this->calledFunctions)) {
 						$this->calledFunctions[] = $functionName;
 					}
+					// is it function we're looking for
 					if (isset($functions[$functionName])) {
 						$definingFunctionName = $phpTokens->getDefiningFunctionName($key);
 
