@@ -1,11 +1,18 @@
 <?php
 class CodeReviewAnalyzer {
-	
+
+	/**
+	 * Function names seen as called
+	 *
+	 * @var array
+	 */
+	protected $calledFunctions = array();
+
 	/**
 	 * @var array
 	 */
 	protected $stats;
-	
+
 	/**
 	 * @var string
 	 */
@@ -110,6 +117,43 @@ class CodeReviewAnalyzer {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function ouptutUnusedFunctionsReport() {
+		//prepare unused functions report
+		$functions = get_defined_functions();
+		$functions = array_filter($functions['user'], 'strtolower');
+		$calledFunctions = array_filter($this->calledFunctions, 'strtolower');
+		$deprecatedFunctions = array_filter(array_keys(code_review::getDeprecatedFunctionsList($this->maxVersion)), 'strtolower');
+		$functions = array_diff($functions, $calledFunctions, $deprecatedFunctions);
+
+		foreach ($functions as $key => $function) {
+			if (function_exists($function)) {
+				$reflectionFunction = new ReflectionFunction($function);
+				if (!$reflectionFunction->isInternal()) {
+					continue;
+				}
+				unset($reflectionFunction);
+			}
+			unset($functions[$key]);
+		}
+		sort($functions);
+
+		//unused functions report
+		$result = "Not called but defined funcions:\n";
+		$baseLenght = strlen(elgg_get_root_path());
+		foreach (array_values($functions) as $functionName) {
+			$reflectionFunction = new ReflectionFunction($functionName);
+			$path = substr($reflectionFunction->getFileName(), $baseLenght);
+			if (strpos($path, 'engine') !== 0) {
+				continue;
+			}
+			$result .= "$functionName \t{$path}:{$reflectionFunction->getStartLine()}\n";
+		}
+		return $result;
+	}
+
+	/**
 	 * @param $skipInactive
 	 * @return string
 	 */
@@ -138,7 +182,11 @@ class CodeReviewAnalyzer {
 		}
 		
 		$result .= "\n";
-		
+
+//		$result .= $this->ouptutUnusedFunctionsReport();
+
+		$result .= "\n";
+
 		return $result;
 	}
 
@@ -159,23 +207,36 @@ class CodeReviewAnalyzer {
 		foreach ($phpTokens as $key => $row) {
 			if (is_array($row)) {
 				list($token, $functionName, $lineNumber) = $row;
-				if ($token == T_STRING && isset($functions[$functionName]) 
+				$originalFunctionName = $functionName;
+				$functionName = strtolower($functionName);
+				if ($token == T_CONSTANT_ENCAPSED_STRING && function_exists(trim($functionName, '\'""'))) {
+					$functionName = trim($functionName, '\'""');
+					if (!in_array($functionName, $this->calledFunctions)) {
+						$this->calledFunctions[] = $functionName;
+					}
+				}
+				if ($token == T_STRING
 					&& !$phpTokens->isEqualToToken(T_OBJECT_OPERATOR, $key-1) //not method
 					&& !$phpTokens->isEqualToToken(T_DOUBLE_COLON, $key-1) //not static method
 					&& !$phpTokens->isEqualToToken(T_FUNCTION, $key-2) //not definition
 				) {
-					$definingFunctionName = $phpTokens->getDefiningFunctionName($key);
-
-					//we're skipping deprecated calls that are in feprecated function itself
-					if (!$definingFunctionName || !isset($functions[$definingFunctionName])) {
-						$result['problems'][] = array($functions[$functionName], $functionName, $lineNumber);
+					if (function_exists($functionName) && !in_array($functionName, $this->calledFunctions)) {
+						$this->calledFunctions[] = $functionName;
 					}
+					if (isset($functions[$functionName])) {
+						$definingFunctionName = $phpTokens->getDefiningFunctionName($key);
 
-					//do instant replacement
-					if ($this->fixProblems && isset($this->instantReplacements[$functionName])) {
-						$phpTokens[$key] = array(T_STRING, $this->instantReplacements[$functionName]);
-						$result['fixes'][] = array($functionName, $this->instantReplacements[$functionName], $lineNumber);
-						$changes++;
+						//we're skipping deprecated calls that are in deprecated function itself
+						if (!$definingFunctionName || !isset($functions[strtolower($definingFunctionName)])) {
+							$result['problems'][] = array($functions[$functionName], $originalFunctionName, $lineNumber);
+						}
+
+						//do instant replacement
+						if ($this->fixProblems && isset($this->instantReplacements[$functionName])) {
+							$phpTokens[$key] = array(T_STRING, $this->instantReplacements[$functionName]);
+							$result['fixes'][] = array($originalFunctionName, $this->instantReplacements[$functionName], $lineNumber);
+							$changes++;
+						}
 					}
 				}
 			}

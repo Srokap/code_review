@@ -54,6 +54,11 @@ class code_review {
 			'text' => elgg_echo('admin:code:diagnostic:deprecated_list'),
 //			'target' => '_blank',
 		));
+		$result[] = ElggMenuItem::factory(array(
+			'name' => 'admin/code/diagnostic/functions_list',
+			'href' => 'admin/code/diagnostic/functions_list',
+			'text' => elgg_echo('admin:code:diagnostic:functions_list'),
+		));
 		return $result;
 	}
 
@@ -228,6 +233,7 @@ class code_review {
 
 				//check if non empty version and try go guess
 				$data = array(
+					'name' => $functionName,
 					'version' => $version,
 					'file' => $file->getPathname(),
 					'line' => $token[2],
@@ -243,7 +249,7 @@ class code_review {
 					$data = array_merge($data, $info);
 				}
 
-				$functs[$functionName] = $data;
+				$functs[strtolower($functionName)] = $data;
 			}
 		}
 		return $functs;

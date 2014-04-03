@@ -33,10 +33,11 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 	protected $blacklist = array(
 		'\..*',
 		'engine/lib/upgrades/.*',
-		'engine/lib/deprecated.*',
+//		'engine/lib/deprecated.*',
 		'engine/tests/.*',
 		'cache/.*',
 		'documentation/.*',
+		'vendor/.*',//composer default dir
 		'vendors/.*',
 	);
 

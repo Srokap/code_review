@@ -3,6 +3,7 @@ $result = array(
 	'admin:code' => 'Code',
 	'admin:code:diagnostic' => 'Code diagnostic',
 	'admin:code:diagnostic:deprecated_list' => 'Deprecated functions list',
+	'admin:code:diagnostic:functions_list' => 'Defined functions',
 	'code_review:menu' => 'Menu',
 
 	'code_review:deprecated_list:title' => 'Deprecated since version %s',
@@ -10,6 +11,12 @@ $result = array(
 	'code_review:deprecated_list:remarks' => 'Remarks',
 	'code_review:deprecated_list:solution' => 'Solution',
 	'code_review:deprecated_list:file_line' => 'In file %s on line %d',
+
+	'code_review:functions_list:name' => 'Name',
+	'code_review:functions_list:file' => 'Definition file',
+	'code_review:functions_list:line' => 'Line',
+
+	'code_review:functions_list:title' => 'Functions defined in %s',
 
 	'code_review:solution:basic_replace_with' => 'Simple replacement with %s',
 
