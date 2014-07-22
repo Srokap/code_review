@@ -82,7 +82,8 @@ class CodeReviewAnalyzer {
 
 		$this->stats = array();
 
-		$functions = code_review::getDeprecatedFunctionsList($this->maxVersion);
+		$functions = array_merge(code_review::getDeprecatedFunctionsList($this->maxVersion),
+			code_review::getPrivateFunctionsList());
 
 		foreach ($i as $filePath => $file) {
 			if ($file instanceof SplFileInfo) {
@@ -171,7 +172,10 @@ class CodeReviewAnalyzer {
 			foreach ($items['problems'] as $row) {
 				list($data, $function, $line) = $row;
 				$version = $data['version'];
-				$result .= "    Line $line:\tFunction call: $function (deprecated since $version)" . ($data['fixinfoshort'] ? ' ' . $data['fixinfoshort'] : '') . "\n";
+				$result .= "    " . $data->toString(array(
+						'function' => $function,
+						'line' => $line
+					)) . "\n";
 			}
 
 			//fixes

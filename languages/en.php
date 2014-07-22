@@ -4,6 +4,7 @@ $result = array(
 	'admin:code:diagnostic' => 'Code diagnostic',
 	'admin:code:diagnostic:deprecated_list' => 'Deprecated functions list',
 	'admin:code:diagnostic:functions_list' => 'Defined functions',
+	'admin:code:diagnostic:private_list' => 'Private functions list',
 	'code_review:menu' => 'Menu',
 
 	'code_review:deprecated_list:title' => 'Deprecated since version %s',
@@ -11,6 +12,13 @@ $result = array(
 	'code_review:deprecated_list:remarks' => 'Remarks',
 	'code_review:deprecated_list:solution' => 'Solution',
 	'code_review:deprecated_list:file_line' => 'In file %s on line %d',
+
+	'code_review:private_list:title' => 'Private functions',
+	'code_review:private_list:name' => 'Name',
+	'code_review:private_list:file_line' => 'In file %s on line %d',
+	'code_review:private_list:reason' => 'Reason of being private',
+	'code_review:private_list:reason:private' => 'Marked private',
+	'code_review:private_list:reason:not_documented' => 'Not documented',
 
 	'code_review:functions_list:name' => 'Name',
 	'code_review:functions_list:file' => 'Definition file',

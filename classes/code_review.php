@@ -55,6 +55,12 @@ class code_review {
 //			'target' => '_blank',
 		));
 		$result[] = ElggMenuItem::factory(array(
+			'name' => 'admin/code/diagnostic/private_list',
+			'href' => 'admin/code/diagnostic/private_list',
+			'text' => elgg_echo('admin:code:diagnostic:private_list'),
+//			'target' => '_blank',
+		));
+		$result[] = ElggMenuItem::factory(array(
 			'name' => 'admin/code/diagnostic/functions_list',
 			'href' => 'admin/code/diagnostic/functions_list',
 			'text' => elgg_echo('admin:code:diagnostic:functions_list'),
@@ -66,7 +72,7 @@ class code_review {
 	 * @param string $subPath
 	 * @return RegexIterator
 	 */
-	public static function getDeprecatedIterator($subPath = 'engine/') {
+	public static function getPhpIterator($subPath = 'engine/') {
 		$i = new RecursiveDirectoryIterator(elgg_get_config('path') . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
@@ -92,7 +98,7 @@ class code_review {
 	}
 
 	public static function getVersionsList() {
-		$i = self::getDeprecatedIterator('engine/lib/');
+		$i = self::getPhpIterator('engine/lib/');
 		$i = new RegexIterator($i, "/deprecated-.*/");
 		
 		$vv = array();
@@ -117,6 +123,12 @@ class code_review {
 	 */
 	const DEPRECATED_TAG_PREFIX = 'deprecated';
 
+
+	/**
+	 * @val string
+	 */
+	const PRIVATE_TAG_PREFIX = 'private';
+
 	/**
 	 * Filtering predicate
 	 *
@@ -125,6 +137,16 @@ class code_review {
 	 */
 	public static function filterTagsByDeprecatedPrefix($e) {
 		return strpos($e, self::DEPRECATED_TAG_PREFIX) === 0;
+	}
+
+	/**
+	 * Filtering predicate
+	 *
+	 * @param $e
+	 * @return bool
+	 */
+	public static function filterTagsByPrivatePrefix($e) {
+		return strpos($e, self::PRIVATE_TAG_PREFIX) === 0;
 	}
 
 	private static function getDeprecatedInfoFromDocBlock($deprecatedInfo) {
@@ -167,14 +189,25 @@ class code_review {
 		}
 	}
 
+	private static function getPrivateInfoFromDocBlock($privateInfo) {
+		if (strpos($privateInfo, '@' . self::PRIVATE_TAG_PREFIX) === false){
+			return false;
+		} else {
+			$result = array(
+				'private' => true
+			);
+			return $result;
+		}
+	}
+
 	/**
 	 * @param string $maxVersion
 	 * @return array
 	 */
 	public static function getDeprecatedFunctionsList($maxVersion = '') {
-		$i1 = self::getDeprecatedIterator('engine/lib/');
+		$i1 = self::getPhpIterator('engine/lib/');
 		$i1 = new RegexIterator($i1, "/deprecated-.*/");
-		$i2 = self::getDeprecatedIterator('engine/classes/');
+		$i2 = self::getPhpIterator('engine/classes/');
 
 		$i = new AppendIterator();
 		$i->append($i1);
@@ -197,6 +230,30 @@ class code_review {
 
 				$tokens = new PhpFileParser($file->getPathname());
 				$functs = array_merge($functs, self::getDeprecatedFunctionsFromTokens($tokens, $file, $version));
+			}
+		}
+		return $functs;
+	}
+
+	/**
+	 * @param string $maxVersion
+	 * @return array
+	 */
+	public static function getPrivateFunctionsList() {
+		$i1 = new DirectoryIterator('engine/lib/');
+		$i1 = new RegexIterator($i1, "/.*\.php/");
+		$i2 = self::getPhpIterator('engine/classes/');
+
+		$i = new AppendIterator();
+		$i->append($i1);
+		$i->append($i2);
+
+		$functs = array();
+
+		foreach ($i as $file) {
+			if ($file instanceof SplFileInfo) {
+				$tokens = new PhpFileParser($file->getPathname());
+				$functs = array_merge($functs, self::getPrivateFunctionsFromTokens($tokens, $file));
 			}
 		}
 		return $functs;
@@ -249,12 +306,65 @@ class code_review {
 					$data = array_merge($data, $info);
 				}
 
-				$functs[strtolower($functionName)] = $data;
+				$functs[strtolower($functionName)] = new CodeReview_Issues_Deprecated($data);
 			}
 		}
 		return $functs;
 	}
 
+	/**
+	 * Redurns deprecated functions from particular file.
+	 *
+	 * @param PhpFileParser $tokens
+	 * @param SplFileInfo   $file
+	 * @param               $version
+	 * @return array
+	 */
+	private static function getPrivateFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file) {
+		$className = null;
+		$functs = array();
+		foreach ($tokens as $key => $token) {
+			if ($tokens->isEqualToToken(T_INTERFACE, $key)) {
+				//we don't process interfaces for deprecated functions
+				break;
+			}
+			if ($tokens->isEqualToToken(T_CLASS, $key)) {
+				$className = $tokens[$key+2][1];
+			}
+
+			if ($tokens->isEqualToToken(T_FUNCTION, $key)) {
+				if ($className) {
+					$functionName = $className . '::' . $tokens[$key+2][1];
+					$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+				} else {
+					$functionName = $tokens[$key+2][1];
+					$reflection = new ReflectionFunction($functionName);
+				}
+
+				//check if non empty version and try go guess
+				$data = array(
+					'name' => $functionName,
+					'file' => $file->getPathname(),
+					'line' => $token[2],
+				);
+
+				$docBlock = $reflection->getDocComment();
+				if ($docBlock) {
+					if (preg_match('/@access\s+private/', $docBlock) < 1) {
+						//skipping - not private
+						continue;
+					}
+					$data = new CodeReview_Issues_Private($data);
+				} else {
+					//non documented means private
+					$data = new CodeReview_Issues_NotDocumented($data);
+				}
+
+				$functs[strtolower($functionName)] = $data;
+			}
+		}
+		return $functs;
+	}
 
 	/**
 	 * Returns a list of plugin directory names from a base directory.

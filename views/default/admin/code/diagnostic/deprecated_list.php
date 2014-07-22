@@ -31,7 +31,7 @@ foreach ($groups as $version => $group) {
 	ksort($group, SORT_STRING);
 	foreach ($group as $name => $data) {
 		$fileLine = elgg_echo('code_review:deprecated_list:file_line', array($data['file'], $data['line']));
-		$body .= "<tr><td><abbr title=\"$fileLine\">$name</abbr></td>";
+		$body .= "<tr><td><abbr title=\"$fileLine\">" . $data['name'] . "</abbr></td>";
 		$body .= "<td>" . ($data['fixinfoshort'] ? $data['fixinfoshort'] : '') . '</td>';
 		$solution = '';
 		if (isset($replaces[$name])) {
