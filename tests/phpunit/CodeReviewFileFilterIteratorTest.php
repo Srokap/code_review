@@ -31,19 +31,23 @@ class CodeReviewFileFilterIteratorTest extends PHPUnit_Framework_TestCase {
 				}
 			}
 			$expected = array(
+				'engine/lib/deprecated-1.2.php',
 				'not_filtered_file',
 				'mod/ugly_plugin/start.php',
 				'mod/ugly_plugin/pages/page17.php',
 				'mod/ugly_plugin/manifest.xml',
 //				'mod/ugly_plugin',//FIXME fails on PHP 5.2.17
 			);
-			$this->assertEquals(array_diff($expected, $filesFound), array(), print_r($filesFound, true));
+			$missingFiles = array_diff($expected, $filesFound);
+			$this->assertEquals($missingFiles, array(), "Missing expected files: " . print_r($missingFiles, true));
 
 			$unexpected = array(
-				'engine/lib/deprecated-1.2.php',
 				'.dummy_config',
+				'vendor/unwanted_file',
+				'vendors/unwanted_file',
 			);
-			$this->assertEquals(array_intersect($unexpected, $filesFound), array(), print_r($filesFound, true));
+			$unwantedFiles = array_intersect($unexpected, $filesFound);
+			$this->assertEquals($unwantedFiles, array(), "Got some unwanted files: " . print_r($unwantedFiles, true));
 		}
 	}
 
