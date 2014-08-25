@@ -13,6 +13,9 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 		new PhpFileParser($fileName);
 	}
 
+	/**
+	 * @requires PHP 5.3
+	 */
 	public function testUnserializeInternalErrorNoFileName() {
 		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
 		$tokens = new PhpFileParser($fileName);
@@ -28,6 +31,9 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 		unserialize($serializedTokens);
 	}
 
+	/**
+	 * @requires PHP 5.3
+	 */
 	public function testUnserializeInternalErrorBadFileName() {
 		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
 		$badPath = dirname(__FILE__) . '/test_files/php/input/not_existing_file.php';
@@ -44,6 +50,9 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 		unserialize($serializedTokens);
 	}
 
+	/**
+	 * @requires PHP 5.3
+	 */
 	public function testUnserializeInternalErrorNoSha1() {
 		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
 		$tokens = new PhpFileParser($fileName);
