@@ -2,6 +2,11 @@
 class CodeReviewAnalyzer {
 
 	/**
+	 * @var CodeReviewConfig
+	 */
+	protected $options;
+
+	/**
 	 * Function names seen as called
 	 *
 	 * @var array
@@ -35,6 +40,20 @@ class CodeReviewAnalyzer {
 	const T_PLUGINS_INACTIVE = 2;
 
 	/**
+	 * @param CodeReviewConfig $options
+	 */
+	public function __construct(CodeReviewConfig $options = null) {
+
+		if ($options === null) {
+			$options = new CodeReviewConfig();
+		}
+		$this->options = $options;
+
+		$this->maxVersion = $options->getMaxVersion();
+		$this->fixProblems = $options->isFixProblemsEnabled();
+	}
+
+	/**
 	 * @param $type
 	 * @return array
 	 */
@@ -64,26 +83,26 @@ class CodeReviewAnalyzer {
 	}
 
 	/**
-	 * @param Iterator $i
-	 * @param array    $options
 	 * @return array
 	 */
-	public function analyze(Iterator $i, array $options = array()) {
+	public function analyze() {
 
-		$this->maxVersion = elgg_extract('maxVersion', $options);
-		if (!$this->maxVersion) {
-			$this->maxVersion = elgg_get_version(true);
-		}
+		$options = $this->options;
 
-		$this->fixProblems = elgg_extract('fixProblems', $options, false);
+		$i = code_review::getPhpFilesIterator($options->getSubPath(), $options->isSkipInactivePluginsEnabled());
 
 		$fixer = new CodeFixer();
 		$this->instantReplacements = $fixer->getBasicFunctionRenames($this->maxVersion);
 
 		$this->stats = array();
 
-		$functions = array_merge(code_review::getDeprecatedFunctionsList($this->maxVersion),
-			code_review::getPrivateFunctionsList());
+		$functions = array();
+		if ($options->isDeprecatedFunctionsTestEnabled()) {
+			$functions = array_merge($functions, code_review::getDeprecatedFunctionsList($this->maxVersion));
+		}
+		if ($options->isPrivateFunctionsTestEnabled()) {
+			$functions = array_merge($functions, code_review::getPrivateFunctionsList());
+		}
 
 		foreach ($i as $filePath => $file) {
 			if ($file instanceof SplFileInfo) {
@@ -97,15 +116,18 @@ class CodeReviewAnalyzer {
 	}
 
 	/**
-	 * @param $skipInactive
 	 * @return string
 	 */
-	private function ouptutReportHeader($skipInactive) {
+	private function outputReportHeader() {
+
+		$options = $this->options;
+
 		$result = '';
 
-		$result .= "Max version: " . $this->maxVersion . "\n";
-		$result .= "Skipped inactive plugins: " . ($skipInactive ? 'yes' : 'no') . "\n";
-		$result .= "Attempt to fix problems: " . ($this->fixProblems ? 'yes' : 'no') . "\n";
+		$result .= "Subpath selected <strong>" . $options->getSubPath() . "</strong>\n";
+		$result .= "Max version: " . $options->getMaxVersion() . "\n";
+		$result .= "Skipped inactive plugins: " . ($options->isSkipInactivePluginsEnabled() ? 'yes' : 'no') . "\n";
+		$result .= "Attempt to fix problems: " . ($options->isFixProblemsEnabled() ? 'yes' : 'no') . "\n";
 
 		foreach (array('problems', 'fixes') as $type) {
 			$total = 0;
@@ -155,12 +177,13 @@ class CodeReviewAnalyzer {
 	}
 
 	/**
-	 * @param $skipInactive
 	 * @return string
 	 */
-	public function ouptutReport($skipInactive) {
+	public function outputReport() {
 
-		$result = $this->ouptutReportHeader($skipInactive);
+		$options = $this->options;
+
+		$result = $this->outputReportHeader();
 
 		/*
 		 * Full report
