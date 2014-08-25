@@ -13,6 +13,52 @@ class CodeReviewPhpFileParserTest extends PHPUnit_Framework_TestCase {
 		new PhpFileParser($fileName);
 	}
 
+	public function testUnserializeInternalErrorNoFileName() {
+		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
+		$tokens = new PhpFileParser($fileName);
+
+		$reflection = new ReflectionClass($tokens);
+		$reflection_property = $reflection->getProperty('fileName');
+		$reflection_property->setAccessible(true);
+		$reflection_property->setValue($tokens, null);
+
+		$this->setExpectedException('LogicException', "Missing file's path. Looks like severe internal error.");
+
+		$serializedTokens = serialize($tokens);
+		unserialize($serializedTokens);
+	}
+
+	public function testUnserializeInternalErrorBadFileName() {
+		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
+		$badPath = dirname(__FILE__) . '/test_files/php/input/not_existing_file.php';
+		$tokens = new PhpFileParser($fileName);
+
+		$reflection = new ReflectionClass($tokens);
+		$reflection_property = $reflection->getProperty('fileName');
+		$reflection_property->setAccessible(true);
+		$reflection_property->setValue($tokens, $badPath);
+
+		$this->setExpectedException('CodeReview_IOException', "File $badPath does not exists");
+
+		$serializedTokens = serialize($tokens);
+		unserialize($serializedTokens);
+	}
+
+	public function testUnserializeInternalErrorNoSha1() {
+		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
+		$tokens = new PhpFileParser($fileName);
+
+		$reflection = new ReflectionClass($tokens);
+		$reflection_property = $reflection->getProperty('sha1hash');
+		$reflection_property->setAccessible(true);
+		$reflection_property->setValue($tokens, null);
+
+		$this->setExpectedException('LogicException', "Missing file's SHA1 hash. Looks like severe internal error.");
+
+		$serializedTokens = serialize($tokens);
+		unserialize($serializedTokens);
+	}
+
 	public function testSerializationDataPreserve() {
 		$tokens = new PhpFileParser(__FILE__);
 		$serializedTokens = serialize($tokens);

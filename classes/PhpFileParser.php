@@ -40,10 +40,10 @@ class PhpFileParser implements Iterator, ArrayAccess {
 		}
 
 		$this->tokens = token_get_all($contents);
-		$this->computeNestingParentTokens();
 		if (!is_array($this->tokens)) {
 			throw new Exception("Failed to parse PHP contents of $fileName");
 		}
+		$this->computeNestingParentTokens();
 	}
 
 	/**
@@ -69,7 +69,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * @throws CodeReview_IOException
 	 * @throws LogicException
 	 */
-	private function validateFileContents() {
+	protected function validateFileContents() {
 		if (!$this->fileName) {
 			throw new LogicException("Missing file's path. Looks like severe internal error.");
 		}
@@ -90,7 +90,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * @return bool
 	 * @throws CodeReview_IOException
 	 */
-	private function validateFilePath($fileName) {
+	protected function validateFilePath($fileName) {
 		if (!file_exists($fileName)) {
 			throw new CodeReview_IOException("File $fileName does not exists");
 		}
