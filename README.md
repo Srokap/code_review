@@ -19,3 +19,12 @@ Please report all issues with this plugin itself on it's
 
 With issues found in analyzed plugins you should contact plugin author directly and give him all the details from
 analysis results.
+
+Screenshots
+-------------
+
+![Analysis](screenshots/analysis.png)
+
+![Deprecated list](screenshots/analysis.png)
+
+![Code fixing](screenshots/analysis.png)

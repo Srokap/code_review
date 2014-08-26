@@ -3,11 +3,11 @@
 	<id>code_review</id>
 	<name>Code Analyzer</name>
 	<author>Paweł Sroka (srokap@gmail.com)</author>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<description>Analyzes plugins code and provides basic information on code quality, compatibility and structure.
 	</description>
 	<website>https://srokap.pl/</website>
-	<copyright>(C) Paweł Sroka 2013</copyright>
+	<copyright>(C) Paweł Sroka 2013-2014</copyright>
 	<license>http://opensource.org/licenses/MIT</license>
 
 	<category>admin</category>
