@@ -60,6 +60,8 @@ class CodeReviewConfig {
 		$this->subPath = $subPath;
 		$this->maxVersion = elgg_extract('version', $vars);
 		$this->includeDisabledPlugins = elgg_extract('include_disabled_plugins', $vars, false);
+		$this->findDeprecatedFunctions = elgg_extract('find_deprecated_functions', $vars, true);
+		$this->findPrivateFunctions = elgg_extract('find_private_functions', $vars, true);
 		$this->fixProblems = elgg_extract('fix_problems', $vars);
 	}
 
@@ -106,15 +108,13 @@ class CodeReviewConfig {
 	 * @return bool
 	 */
 	public function isDeprecatedFunctionsTestEnabled() {
-		//TODO make this configurable
-		return true;
+		return (bool)$this->getOption('findDeprecatedFunctions', true);
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isPrivateFunctionsTestEnabled() {
-		//TODO make this configurable
-		return true;
+		return (bool)$this->getOption('findPrivateFunctions', true);
 	}
 }

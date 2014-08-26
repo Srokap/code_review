@@ -98,7 +98,7 @@ class CodeReviewAnalyzer {
 
 		$functions = array();
 		if ($options->isDeprecatedFunctionsTestEnabled()) {
-			$functions = array_merge($functions, code_review::getDeprecatedFunctionsList($this->maxVersion));
+			$functions = array_merge($functions, code_review::getDeprecatedFunctionsList($options->getMaxVersion()));
 		}
 		if ($options->isPrivateFunctionsTestEnabled()) {
 			$functions = array_merge($functions, code_review::getPrivateFunctionsList());
@@ -127,6 +127,8 @@ class CodeReviewAnalyzer {
 		$result .= "Subpath selected <strong>" . $options->getSubPath() . "</strong>\n";
 		$result .= "Max version: " . $options->getMaxVersion() . "\n";
 		$result .= "Skipped inactive plugins: " . ($options->isSkipInactivePluginsEnabled() ? 'yes' : 'no') . "\n";
+		$result .= "Search for deprecated functions usage: " . ($options->isDeprecatedFunctionsTestEnabled() ? 'yes' : 'no') . "\n";
+		$result .= "Search for private functions usage: " . ($options->isPrivateFunctionsTestEnabled() ? 'yes' : 'no') . "\n";
 		$result .= "Attempt to fix problems: " . ($options->isFixProblemsEnabled() ? 'yes' : 'no') . "\n";
 
 		foreach (array('problems', 'fixes') as $type) {

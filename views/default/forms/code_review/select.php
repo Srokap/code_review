@@ -9,6 +9,8 @@ if (preg_match('#^([0-9]+\.[0-9]+)#', $bigVersion, $matches)) {
 $subpath = get_input('subpath');
 $version = get_input('version', elgg_extract('version', $vars, $bigVersion));
 $include_disabled_plugins = get_input('include_disabled_plugins', 0);
+$find_deprecated_functions = get_input('find_deprecated_functions', 1);
+$find_private_functions = get_input('find_private_functions', 1);
 $fix_problems = get_input('fix_problems', 0);
 
 echo '<p>';
@@ -34,6 +36,30 @@ echo '<label>' . elgg_echo('code_review:disabled_plugins_only') . '</label> ';
 echo elgg_view('input/dropdown', array(
 	'name' => 'include_disabled_plugins',
 	'value' => $include_disabled_plugins,
+	'options_values' => array(
+		0 => elgg_echo('option:no'),
+		1 => elgg_echo('option:yes'),
+	),
+));
+echo '</p>';
+
+echo '<p>';
+echo '<label>' . elgg_echo('code_review:find_deprecated_functions') . '</label> ';
+echo elgg_view('input/dropdown', array(
+	'name' => 'find_deprecated_functions',
+	'value' => $find_deprecated_functions,
+	'options_values' => array(
+		0 => elgg_echo('option:no'),
+		1 => elgg_echo('option:yes'),
+	),
+));
+echo '</p>';
+
+echo '<p>';
+echo '<label>' . elgg_echo('code_review:find_private_functions') . '</label> ';
+echo elgg_view('input/dropdown', array(
+	'name' => 'find_private_functions',
+	'value' => $find_private_functions,
 	'options_values' => array(
 		0 => elgg_echo('option:no'),
 		1 => elgg_echo('option:yes'),
