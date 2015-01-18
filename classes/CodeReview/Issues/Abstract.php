@@ -19,8 +19,8 @@ abstract class CodeReview_Issues_Abstract implements ArrayAccess {
 	/**
 	 * @return string
 	 */
-	public function toString(array $options = array()) {
-		return "Line " . $options['line'] . ":\tFunction call: " . $options['function'] . " " . $this->getExplanation();
+	public function toString() {
+		return "Line " . $this->data['line'] . ":\tFunction call: " . $this->data['name'] . " " . $this->getExplanation();
 	}
 
 	/**
@@ -40,7 +40,7 @@ abstract class CodeReview_Issues_Abstract implements ArrayAccess {
 	 * @return bool
 	 */
 	public function offsetExists($offset) {
-		return isset($this->data);
+		return isset($this->data[$offset]);
 	}
 
 	/**

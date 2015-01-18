@@ -35,10 +35,6 @@ class CodeReviewAnalyzer {
 	 */
 	protected $fixProblems;
 
-	const T_PLUGINS_ALL = 0;
-	const T_PLUGINS_ACTIVE = 1;
-	const T_PLUGINS_INACTIVE = 2;
-
 	/**
 	 * @param CodeReviewConfig $options
 	 */
@@ -54,32 +50,22 @@ class CodeReviewAnalyzer {
 	}
 
 	/**
-	 * @param $type
-	 * @return array
+	 * @param string $subPath
+	 * @param bool   $skipInactive
+	 * @throws CodeReview_IOException
+	 * @return CodeReviewFileFilterIterator
 	 */
-	public static function getPluginIds($type) {
-		$pluginsDirs = false;
-		
-		switch ($type) {
-			case self::T_PLUGINS_INACTIVE:
-				$pluginsDirs = self::getPluginIds(self::T_PLUGINS_ALL);
-				$actives = elgg_get_plugins('active');
-				foreach ($actives as $plugin) {
-					$pluginsDirs = array_diff($pluginsDirs, array($plugin->getID()));
-				}
-				break;
-			case self::T_PLUGINS_ACTIVE:
-				$pluginsDirs = elgg_get_plugins('active');
-				foreach ($pluginsDirs as $key => $plugin) {
-					$pluginsDirs[$key] = $plugin->getID();
-				}
-				break;
-			case self::T_PLUGINS_ALL:
-				$pluginsDirs = code_review::getPluginDirsInDir(elgg_get_config('path') . 'mod/');
-				break;
-							
+	public function getPhpFilesIterator($subPath = 'engine/') {
+		$config = code_review::getConfig();
+		$path = $config['path'] . $subPath;
+		if (!file_exists($path)) {
+			throw new CodeReview_IOException("Invalid subPath specified. $path does not exists!");
 		}
-		return $pluginsDirs;
+		$i = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
+		$i = new RegexIterator($i, "/.*\.php/");
+		$i = new CodeReviewFileFilterIterator($i, self::$config['path'], $this->options);
+		return $i;
 	}
 
 	/**
@@ -89,7 +75,7 @@ class CodeReviewAnalyzer {
 
 		$options = $this->options;
 
-		$i = code_review::getPhpFilesIterator($options->getSubPath(), $options->isSkipInactivePluginsEnabled());
+		$i = $this->getPhpFilesIterator($options->getSubPath());
 
 		$fixer = new CodeFixer();
 		$this->instantReplacements = $fixer->getBasicFunctionRenames($this->maxVersion);
@@ -202,10 +188,7 @@ class CodeReviewAnalyzer {
 			foreach ($items['problems'] as $row) {
 				list($data, $function, $line) = $row;
 				$version = $data['version'];
-				$result .= "    " . $data->toString(array(
-						'function' => $function,
-						'line' => $line
-					)) . "\n";
+				$result .= "    " . (string)$data . "\n";
 			}
 
 			//fixes

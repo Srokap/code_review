@@ -4,6 +4,10 @@
  */
 class CodeReviewConfig {
 
+	const T_PLUGINS_ALL = 0;
+	const T_PLUGINS_ACTIVE = 1;
+	const T_PLUGINS_INACTIVE = 2;
+
 	/**
 	 * @var array
 	 */
@@ -39,6 +43,43 @@ class CodeReviewConfig {
 	 */
 	public function __set($key, $value) {
 		$this->options[$key] = $value;
+	}
+
+	/**
+	 * @param $type
+	 * @return array
+	 */
+	public function getPluginIds($type) {
+		$pluginsDirs = false;
+
+		$config = code_review::getConfig();
+
+		switch ($type) {
+			case self::T_PLUGINS_INACTIVE:
+				$pluginsDirs = $this->getPluginIds(self::T_PLUGINS_ALL);
+				$actives = call_user_func($config['plugins_getter'], 'active');
+				foreach ($actives as $plugin) {
+					if ($plugin instanceof ElggPlugin) {
+						$pluginsDirs = array_diff($pluginsDirs, array($plugin->getID()));
+					} else {
+						$pluginsDirs = array_diff($pluginsDirs, array($plugin));
+					}
+				}
+				break;
+			case self::T_PLUGINS_ACTIVE:
+				$pluginsDirs = call_user_func($config['plugins_getter'], 'active');
+				foreach ($pluginsDirs as $key => $plugin) {
+					if ($plugin instanceof ElggPlugin) {
+						$pluginsDirs[$key] = $plugin->getID();
+					}
+				}
+				break;
+			case self::T_PLUGINS_ALL:
+				$pluginsDirs = code_review::getPluginDirsInDir($config['pluginspath']);
+				break;
+
+		}
+		return $pluginsDirs;
 	}
 
 	/*

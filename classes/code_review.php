@@ -23,14 +23,23 @@ class code_review {
 		}
 
 		self::initConfig(array(
-			'wwwroot' => elgg_get_config('wwwroot'),
 			'path' => elgg_get_config('path'),
 			'pluginspath' => elgg_get_plugins_path(),
+			'plugins_getter' => 'elgg_get_plugins',
 		));
 	}
 
 	/**
+	 * @return array
+	 */
+	public static function getConfig() {
+		return self::$config;
+	}
+
+	/**
 	 * @param array $options
+	 *
+	 * @todo Move into CodeReviewConfig instead
 	 */
 	public static function initConfig(array $options) {
 		self::$config = $options;
@@ -61,7 +70,7 @@ class code_review {
 		elgg_register_ajax_view('graphics/ajax_loader');
 		elgg_register_ajax_view('code_review/analysis');
 		
-		elgg_register_js('code_review', self::$config['wwwroot'] . 'mod/'
+		elgg_register_js('code_review', elgg_get_config('wwwroot') . 'mod/'
 			. __CLASS__ . '/views/default/js/code_review.js');
 	}
 
@@ -118,24 +127,6 @@ class code_review {
 		$i = new RecursiveDirectoryIterator(self::$config['path'] . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
-		return $i;
-	}
-
-	/**
-	 * @param string $subPath
-	 * @param bool   $skipInactive
-	 * @throws CodeReview_IOException
-	 * @return CodeReviewFileFilterIterator
-	 */
-	public static function getPhpFilesIterator($subPath = 'engine/', $skipInactive = false) {
-		$path = self::$config['path'] . $subPath;
-		if (!file_exists($path)) {
-			throw new CodeReview_IOException("Invalid subPath specified. $path does not exists!");
-		}
-		$i = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
-		$i = new RegexIterator($i, "/.*\.php/");
-		$i = new CodeReviewFileFilterIterator($i, self::$config['path'], $skipInactive);
 		return $i;
 	}
 

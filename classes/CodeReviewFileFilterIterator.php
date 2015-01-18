@@ -7,20 +7,20 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 	private $basePath;
 
 	/**
-	 * @param Iterator $iterator
-	 * @param string   $basePath
-	 * @param bool     $skipInactive
+	 * @param Iterator         $iterator
+	 * @param string           $basePath
+	 * @param CodeReviewConfig $config
 	 * @throws CodeReview_IOException
 	 */
-	public function __construct($iterator, $basePath, $skipInactive = false) {
+	public function __construct($iterator, $basePath, CodeReviewConfig $config) {
 		if (!is_dir($basePath)) {
 			throw new CodeReview_IOException("Directory $basePath does not exists");
 		}
 		$basePath = rtrim($basePath, '/\\') . '/';
 		$this->basePath = $basePath;
 
-		if ($skipInactive) {
-			$pluginsDirs = CodeReviewAnalyzer::getPluginIds(CodeReviewAnalyzer::T_PLUGINS_INACTIVE);
+		if ($config->isSkipInactivePluginsEnabled()) {
+			$pluginsDirs = $config->getPluginIds(CodeReviewConfig::T_PLUGINS_INACTIVE);
 			foreach ($pluginsDirs as $pluginDir) {
 				$this->blacklist[] = 'mod/' . $pluginDir . '/.*';
 			}
