@@ -2,7 +2,7 @@
 
 class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 
-	public function testInitialize() {
+	public function setUp() {
 		$path = __DIR__ . '/test_files/fake_elgg/';
 
 		require_once(__DIR__ . '/test_files/fake_elgg/engine/start.php');
