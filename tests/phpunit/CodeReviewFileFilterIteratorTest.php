@@ -73,9 +73,9 @@ class CodeReviewFileFilterIteratorTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testIteratingOverFilesFilteringIncactive() {
 
-		$path = __DIR__ . '/test_files/fake_elgg/';
+		$path = dirname(__FILE__) . '/test_files/fake_elgg/';
 
-		require_once(__DIR__ . '/test_files/fake_elgg/engine/start.php');
+		require_once($path . 'engine/start.php');
 
 		code_review::initConfig(array(
 			'path' => $path,
