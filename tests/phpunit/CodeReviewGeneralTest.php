@@ -13,7 +13,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 		));
 	}
 
-	function testGetDeprecatedFunctionsList() {
+	public function testGetDeprecatedFunctionsList() {
 
 		$functions = code_review::getDeprecatedFunctionsList('1.2');
 		$this->assertArrayHasKey('dummy_deprecated_function1', $functions);
@@ -45,7 +45,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 		$this->assertArrayNotHasKey('dummy_deprecated_function1', $functions);
 	}
 
-	function testGetPrivateFunctionsList() {
+	public function testGetPrivateFunctionsList() {
 
 		$functions = code_review::getPrivateFunctionsList();
 		$this->assertArrayNotHasKey('dummy_deprecated_function1', $functions);
