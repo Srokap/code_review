@@ -7,6 +7,8 @@
 	<filter>
 		<blacklist>
 			<directory>./tests/phpunit/</directory>
+			<directory>./views/</directory>
+			<file>./start.php</file>
 		</blacklist>
 	</filter>
 </phpunit>
