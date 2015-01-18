@@ -5,18 +5,54 @@
  * @author Paweł Sroka (srokap@gmail.com)
  */
 class code_review {
+
+	/**
+	 * Config array to allow mocking of configuration.
+	 *
+	 * @var array
+	 */
+	protected static $config = array();
+
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public static function boot() {
 		if (version_compare(elgg_get_version(true), '1.9', '<')) {
 			$autoloader = new CodeReviewAutoloader();
 			$autoloader->register();
 		}
-// 		require_once elgg_get_config('pluginspath').__CLASS__.'/vendors/Zend/Loader/StandardAutoloader.php';
-// 		$loader = new Zend\Loader\StandardAutoloader(array('autoregister_zf' => true));
-// 		$loader->register();
+
+		self::initConfig(array(
+			'wwwroot' => elgg_get_config('wwwroot'),
+			'path' => elgg_get_config('path'),
+			'pluginspath' => elgg_get_plugins_path(),
+		));
 	}
 
+	/**
+	 * @param array $options
+	 */
+	public static function initConfig(array $options) {
+		self::$config = $options;
+
+		$names = array(
+			'T_NAMESPACE',
+			'T_NS_C',
+			'T_NS_SEPARATOR',
+		);
+
+		foreach ($names as $name) {
+			if (!defined($name)) {
+				// just define it with value unused by tokenizer to avoid errors on old PHP versions
+				define($name, 10000);
+			}
+		}
+	}
+
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public static function init() {
-// 		self::playground();
 
 		elgg_register_event_handler('pagesetup', 'system', array(__CLASS__, 'pagesetup'));
 
@@ -25,10 +61,13 @@ class code_review {
 		elgg_register_ajax_view('graphics/ajax_loader');
 		elgg_register_ajax_view('code_review/analysis');
 		
-		elgg_register_js('code_review', elgg_get_config('wwwroot') . 'mod/'
+		elgg_register_js('code_review', self::$config['wwwroot'] . 'mod/'
 			. __CLASS__ . '/views/default/js/code_review.js');
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public static function pagesetup() {
 		if (elgg_get_context() == 'admin') {
 			elgg_register_menu_item('page', array(
@@ -41,6 +80,9 @@ class code_review {
 		}
 	}
 
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public static function menu_register() {
 		$result = array();
 		$result[] = ElggMenuItem::factory(array(
@@ -73,7 +115,7 @@ class code_review {
 	 * @return RegexIterator
 	 */
 	public static function getPhpIterator($subPath = 'engine/') {
-		$i = new RecursiveDirectoryIterator(elgg_get_config('path') . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
+		$i = new RecursiveDirectoryIterator(self::$config['path'] . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
 		return $i;
@@ -86,14 +128,14 @@ class code_review {
 	 * @return CodeReviewFileFilterIterator
 	 */
 	public static function getPhpFilesIterator($subPath = 'engine/', $skipInactive = false) {
-		$path = elgg_get_config('path') . $subPath;
+		$path = self::$config['path'] . $subPath;
 		if (!file_exists($path)) {
 			throw new CodeReview_IOException("Invalid subPath specified. $path does not exists!");
 		}
 		$i = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
-		$i = new CodeReviewFileFilterIterator($i, elgg_get_config('path'), $skipInactive);
+		$i = new CodeReviewFileFilterIterator($i, self::$config['path'], $skipInactive);
 		return $i;
 	}
 
@@ -166,7 +208,7 @@ class code_review {
 			if ($matches) {
 				$version = $matches[1];
 			}
-			$deprecatedInfo = preg_replace('#\s*[0-9](?:\.[0-9]){1,2}\.?\s*#', "", $deprecatedInfo);
+			$deprecatedInfo = preg_replace('#\s*[0-9](?:\.[0-9]+){1,2}\.?\s*#', "", $deprecatedInfo);
 			//strip embedded @link docblock entries
 			$deprecatedInfo = preg_replace('#\{\@[a-z]+\s([^\}]+)\}#', '$1', $deprecatedInfo);
 			//trim possible whitechars at the end
@@ -240,7 +282,7 @@ class code_review {
 	 * @return array
 	 */
 	public static function getPrivateFunctionsList() {
-		$i1 = new DirectoryIterator('engine/lib/');
+		$i1 = new DirectoryIterator(self::$config['path'] . 'engine/lib/');
 		$i1 = new RegexIterator($i1, "/.*\.php/");
 		$i2 = self::getPhpIterator('engine/classes/');
 
@@ -268,6 +310,7 @@ class code_review {
 	 * @return array
 	 */
 	private static function getDeprecatedFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file, $version) {
+		$namespace = '';
 		$className = null;
 		$functs = array();
 		foreach ($tokens as $key => $token) {
@@ -275,17 +318,38 @@ class code_review {
 				//we don't process interfaces for deprecated functions
 				break;
 			}
-			if ($tokens->isEqualToToken(T_CLASS, $key)) {
-				$className = $tokens[$key+2][1];
+			if ($tokens->isEqualToToken(T_NAMESPACE, $key)) {
+				$pos = $key+2;
+				$namespace = '';
+				while (isset($tokens[$pos]) && $tokens[$pos] !== ';') {
+					$namespace .= $tokens[$pos][1];
+						$pos++;
+				}
+				$namespace = '\\' . $namespace . '\\';
 			}
+			if ($tokens->isEqualToToken(T_CLASS, $key)) {
+				//mark class name for all following functions
+				$className = $namespace . $tokens[$key+2][1];
+			}
+
+			//TODO we need to filter out closures
 
 			if ($tokens->isEqualToToken(T_FUNCTION, $key)) {
 				if ($className) {
 					$functionName = $className . '::' . $tokens[$key+2][1];
-					$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+					try {
+						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+					} catch (ReflectionException $e) {
+						break;
+					}
+
 				} else {
 					$functionName = $tokens[$key+2][1];
-					$reflection = new ReflectionFunction($functionName);
+					try {
+						$reflection = new ReflectionFunction($functionName);
+					} catch (ReflectionException $e) {
+						break;
+					}
 				}
 
 				//check if non empty version and try go guess
@@ -321,6 +385,7 @@ class code_review {
 	 * @return array
 	 */
 	private static function getPrivateFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file) {
+		$namespace = '';
 		$className = null;
 		$functs = array();
 		foreach ($tokens as $key => $token) {
@@ -328,17 +393,35 @@ class code_review {
 				//we don't process interfaces for deprecated functions
 				break;
 			}
+			if ($tokens->isEqualToToken(T_NAMESPACE, $key)) {
+				$pos = $key+2;
+				$namespace = '';
+				while (isset($tokens[$pos]) && $tokens[$pos] !== ';') {
+					$namespace .= $tokens[$pos][1];
+					$pos++;
+				}
+				$namespace = '\\' . $namespace . '\\';
+			}
 			if ($tokens->isEqualToToken(T_CLASS, $key)) {
-				$className = $tokens[$key+2][1];
+				//mark class name for all following functions
+				$className = $namespace . $tokens[$key+2][1];
 			}
 
 			if ($tokens->isEqualToToken(T_FUNCTION, $key)) {
 				if ($className) {
 					$functionName = $className . '::' . $tokens[$key+2][1];
-					$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+					try {
+						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
+					} catch (ReflectionException $e) {
+						break;
+					}
 				} else {
 					$functionName = $tokens[$key+2][1];
-					$reflection = new ReflectionFunction($functionName);
+					try {
+						$reflection = new ReflectionFunction($functionName);
+					} catch (ReflectionException $e) {
+						break;
+					}
 				}
 
 				//check if non empty version and try go guess
@@ -377,7 +460,7 @@ class code_review {
 	 */
 	public static function getPluginDirsInDir($dir = null) {
 		if (!$dir) {
-			$dir = elgg_get_plugins_path();
+			$dir = self::$config['pluginspath'];
 		}
 
 		$plugin_dirs = array();

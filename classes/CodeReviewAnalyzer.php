@@ -138,6 +138,11 @@ class CodeReviewAnalyzer {
 			}
 			$result .= "Found $total $type in " . count($this->stats) . " files\n";
 		}
+
+		if (count($this->stats) === 0) {
+			$result .= "*** No files were processed! *** Analysis input parameters did not resolve to any files.\n";
+		}
+
 		return $result;
 	}
 

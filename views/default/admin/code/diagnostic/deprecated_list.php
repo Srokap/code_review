@@ -8,7 +8,7 @@ $functions = code_review::getDeprecatedFunctionsList('');
 //group by versions
 $groups = array();
 foreach ($functions as $name => $data) {
-	$version = elgg_extract('version', $data, 'Unknown');
+	$version = isset($data['version']) ? $data['version'] : 'Unknown';
 	if (!isset($groups[$version])) {
 		$groups[$version] = array();
 	}
