@@ -64,7 +64,7 @@ class CodeReviewAnalyzer {
 		$i = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
-		$i = new CodeReviewFileFilterIterator($i, self::$config['path'], $this->options);
+		$i = new CodeReviewFileFilterIterator($i, $config['path'], $this->options);
 		return $i;
 	}
 
