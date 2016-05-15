@@ -19,7 +19,7 @@ abstract class AbstractIssue implements \ArrayAccess {
 	 * @return string
 	 */
 	public function toString() {
-		return "Line " . $this->data['line'] . ":\tFunction call: " . $this->data['name'] . " " . $this->getExplanation();
+		return "Function call: " . $this->data['name'] . " " . $this->getExplanation();
 	}
 
 	/**

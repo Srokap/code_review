@@ -5,7 +5,7 @@
  */
 function foobar_init() {
 	// let's to nasty stuff!
-	dummy_deprecated_function1();
+	dummy_deprecated_function1(); // THIS MUST STAY AT LINE 8
 }
 
 /**

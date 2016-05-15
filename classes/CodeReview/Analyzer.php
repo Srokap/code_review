@@ -166,7 +166,7 @@ class Analyzer {
 		sort($functions);
 
 		//unused functions report
-		$result = "Not called but defined funcions:\n";
+		$result = "Not called but defined functions:\n";
 		$baseLenght = strlen(elgg_get_root_path());
 		foreach (array_values($functions) as $functionName) {
 			$reflectionFunction = new \ReflectionFunction($functionName);
@@ -195,7 +195,7 @@ class Analyzer {
 			//problems
 			foreach ($items['problems'] as $row) {
 				list($data, , $line) = $row;
-				$result .= "    " . (string)$data . "\n";
+				$result .= "    Line $line:\t" . (string)$data . "\n";
 			}
 
 			//fixes

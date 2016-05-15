@@ -7,6 +7,26 @@ class CodeReviewConfigTest extends \PHPUnit_Framework_TestCase {
 		return $human_readable ? '11.22' : 2015062900;
 	}
 
+	public function pluginsGetter($type) {
+		return array(
+			'injected_plugin',
+			'ugly_plugin'
+		);
+	}
+
+	public function setUp() {
+		$path = dirname(__FILE__) . '/test_files/fake_elgg/';
+
+		require_once($path . 'engine/start.php');
+
+		\code_review::initConfig(array(
+			'path' => $path,
+			'engine_path' => $path . 'engine/',
+			'pluginspath' => $path . 'mod/',
+			'plugins_getter' => array($this, 'pluginsGetter'),
+		));
+	}
+
 	public function testDefaultOptionsOnNoInput() {
 		$config = new \CodeReview\Config(array(), array($this, 'getLatestVersion'));
 		$this->assertEquals(null, $config->getSubPath());
@@ -118,5 +138,15 @@ class CodeReviewConfigTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $config->isFixProblemsEnabled());
 		$config->fixProblems = false;
 		$this->assertEquals(false, $config->isFixProblemsEnabled());
+	}
+
+	public function testPluginsGetter() {
+		$config = new \CodeReview\Config(array(), array($this, 'getLatestVersion'));
+
+		$this->assertEquals(array('injected_plugin', 'ugly_plugin'), $config->getPluginIds($config::T_PLUGINS_ACTIVE));
+
+		$this->assertEquals(array('inactive_plugin'), $config->getPluginIds($config::T_PLUGINS_INACTIVE));
+
+		$this->assertEquals(array('inactive_plugin', 'ugly_plugin'), $config->getPluginIds($config::T_PLUGINS_ALL));
 	}
 }

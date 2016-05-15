@@ -43,7 +43,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $deprecatedFunction1['deprecated']);
 		$this->assertEquals('deprecated', $deprecatedFunction1['reason']);
 		$this->assertEquals('Remove it', $deprecatedFunction1['fixinfoshort']);
-		$this->assertEquals("Line " . $deprecatedFunction1['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $deprecatedFunction1['name'] . " (deprecated since 1.1) Remove it",
 			(string)$deprecatedFunction1);
 
@@ -63,7 +63,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $deprecatedFunction2['deprecated']);
 		$this->assertEquals('deprecated', $deprecatedFunction2['reason']);
 		$this->assertEquals(false, $deprecatedFunction2['fixinfoshort']);
-		$this->assertEquals("Line " . $deprecatedFunction2['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $deprecatedFunction2['name'] . " (deprecated since 1.2)",
 			(string)$deprecatedFunction2);
 
@@ -83,7 +83,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $deprecatedFunction3['deprecated']);
 		$this->assertEquals('deprecated', $deprecatedFunction3['reason']);
 		$this->assertEquals('Deprecated private class method.', $deprecatedFunction3['fixinfoshort']);
-		$this->assertEquals("Line " . $deprecatedFunction3['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $deprecatedFunction3['name'] . " (deprecated since 1.2) Deprecated private class method.",
 			(string)$deprecatedFunction3);
 
@@ -103,7 +103,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $deprecatedFunction4['deprecated']);
 		$this->assertEquals('deprecated', $deprecatedFunction4['reason']);
 		$this->assertEquals('Deprecated protected class method.', $deprecatedFunction4['fixinfoshort']);
-		$this->assertEquals("Line " . $deprecatedFunction4['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $deprecatedFunction4['name'] . " (deprecated since 1.2) Deprecated protected class method.",
 			(string)$deprecatedFunction4);
 
@@ -123,7 +123,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $deprecatedFunction5['deprecated']);
 		$this->assertEquals('deprecated', $deprecatedFunction5['reason']);
 		$this->assertEquals('Deprecated public class method.', $deprecatedFunction5['fixinfoshort']);
-		$this->assertEquals("Line " . $deprecatedFunction5['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $deprecatedFunction5['name'] . " (deprecated since 1.1) Deprecated public class method.",
 			(string)$deprecatedFunction5);
 	}
@@ -154,7 +154,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(true, $deprecatedFunction1['deprecated']);
 		$this->assertEquals('deprecated', $deprecatedFunction1['reason']);
 		$this->assertEquals('Deprecated public class method.', $deprecatedFunction1['fixinfoshort']);
-		$this->assertEquals("Line " . $deprecatedFunction1['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $deprecatedFunction1['name'] . " (deprecated since 1.1) Deprecated public class method.",
 			(string)$deprecatedFunction1);
 	}
@@ -181,7 +181,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('foobar_private_api', $privateFunction['name']);
 		$this->assertEquals('private', $privateFunction['reason']);
 
-		$this->assertEquals("Line " . $privateFunction['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $privateFunction['name'] . " (use of function marked private is unsafe)",
 			(string)$privateFunction);
 
@@ -202,7 +202,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals('foobar_undocumented', $undocumentedFunction['name']);
 		$this->assertEquals('not_documented', $undocumentedFunction['reason']);
 
-		$this->assertEquals("Line " . $undocumentedFunction['line'] . ":\tFunction call: "
+		$this->assertEquals("Function call: "
 			. $undocumentedFunction['name'] . " (use of undocumented core function is unsafe)",
 			(string)$undocumentedFunction);
 	}
