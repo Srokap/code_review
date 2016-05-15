@@ -134,16 +134,16 @@ class CodeFixer {
 		);
 	}
 
-	public function getBasicFunctionRenamesTest() {
-		$functs = $this->getBasicFunctionRenames();
-		foreach ($functs as $oldFunct => $newFunct) {
-			$oldFunctReflection = new ReflectionFunction($oldFunct);
-			$newFunctReflection = new ReflectionFunction($newFunct);
-			if ($oldFunctReflection->getNumberOfParameters() != $newFunctReflection->getNumberOfParameters()) {
-				var_dump($oldFunct);
-			}
-		}
-	}
+//	public function getBasicFunctionRenamesTest() {
+//		$functs = $this->getBasicFunctionRenames();
+//		foreach ($functs as $oldFunct => $newFunct) {
+//			$oldFunctReflection = new ReflectionFunction($oldFunct);
+//			$newFunctReflection = new ReflectionFunction($newFunct);
+//			if ($oldFunctReflection->getNumberOfParameters() != $newFunctReflection->getNumberOfParameters()) {
+//				var_dump($oldFunct);
+//			}
+//		}
+//	}
 
 	/**
 	 * @return array of
