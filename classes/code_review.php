@@ -22,7 +22,12 @@ class code_review {
 			$autoloader->register();
 		}
 
+		$enginePath = elgg_get_config('path') . 'engine/';
+		if (function_exists('elgg_get_engine_path')) {
+			$enginePath = elgg_get_engine_path() . '/';
+		}
 		self::initConfig(array(
+			'engine_path' => $enginePath,
 			'path' => elgg_get_config('path'),
 			'pluginspath' => elgg_get_plugins_path(),
 			'plugins_getter' => 'elgg_get_plugins',
@@ -123,15 +128,15 @@ class code_review {
 	 * @param string $subPath
 	 * @return RegexIterator
 	 */
-	public static function getPhpIterator($subPath = 'engine/') {
-		$i = new RecursiveDirectoryIterator(self::$config['path'] . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
+	public static function getPhpIterator($subPath = '/') {
+		$i = new RecursiveDirectoryIterator(self::$config['engine_path'] . $subPath, RecursiveDirectoryIterator::SKIP_DOTS);
 		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
 		$i = new RegexIterator($i, "/.*\.php/");
 		return $i;
 	}
 
 	public static function getVersionsList() {
-		$i = self::getPhpIterator('engine/lib/');
+		$i = self::getPhpIterator('lib/');
 		$i = new RegexIterator($i, "/deprecated-.*/");
 		
 		$vv = array();
@@ -238,9 +243,9 @@ class code_review {
 	 * @return array
 	 */
 	public static function getDeprecatedFunctionsList($maxVersion = '') {
-		$i1 = self::getPhpIterator('engine/lib/');
+		$i1 = self::getPhpIterator('lib/');
 		$i1 = new RegexIterator($i1, "/deprecated-.*/");
-		$i2 = self::getPhpIterator('engine/classes/');
+		$i2 = self::getPhpIterator('classes/');
 
 		$i = new AppendIterator();
 		$i->append($i1);
@@ -273,9 +278,9 @@ class code_review {
 	 * @return array
 	 */
 	public static function getPrivateFunctionsList() {
-		$i1 = new DirectoryIterator(self::$config['path'] . 'engine/lib/');
+		$i1 = new DirectoryIterator(self::$config['engine_path'] . 'lib/');
 		$i1 = new RegexIterator($i1, "/.*\.php/");
-		$i2 = self::getPhpIterator('engine/classes/');
+		$i2 = self::getPhpIterator('classes/');
 
 		$i = new AppendIterator();
 		$i->append($i1);
