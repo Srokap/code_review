@@ -6,7 +6,7 @@ Plugin for PHP code analysis and refactoring of [Elgg](http://elgg.org/) plugins
 Requirements
 -------------
 
-- At the moment this plugin supports PHP >=5.2, but expect it to change in future.
+- At the moment this plugin supports PHP >=5.3
 - This plugin uses [PHP Reflection API](http://php.net/manual/en/book.reflection.php) and even though it's listed
 explicitly in plugin requirements, it's a module that's bundled with all usual PHP deployments. If you're not doing
 anything fancy, no worries.

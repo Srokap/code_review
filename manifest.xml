@@ -27,6 +27,11 @@
 	</screenshot>
 
 	<requires>
+		<type>php_version</type>
+		<version>5.3</version>
+		<comparison>ge</comparison>
+	</requires>
+	<requires>
 		<type>elgg_release</type>
 		<version>1.8</version>
 	</requires>
