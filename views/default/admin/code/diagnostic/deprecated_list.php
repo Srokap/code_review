@@ -15,7 +15,8 @@ foreach ($functions as $name => $data) {
 	$groups[$version][$name] = $data;
 }
 
-ksort($groups);
+uksort($groups, 'version_compare');
+$groups = array_reverse($groups, true);
 
 $fixes = new CodeFixer();
 $replaces = $fixes->getBasicFunctionRenames();
