@@ -1,11 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Paweł
- * Date: 20.11.13
- * Time: 03:34
- */
+namespace CodeReview;
 
-class CodeReview_IOException extends Exception {
+class IOException extends \Exception {
 
 } 

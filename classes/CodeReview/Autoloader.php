@@ -1,14 +1,16 @@
 <?php
+namespace CodeReview;
+
 /**
  * Very simple class autoloader for code_review plugin
  */
-class CodeReviewAutoloader {
+class Autoloader {
 
 	private $classMap = array();
 
 	public function __construct($basePath = null) {
 		if ($basePath === null) {
-			$basePath = dirname(__FILE__);
+			$basePath = dirname(dirname(__FILE__));
 		}
 		$this->registerDirectory($basePath);
 	}
@@ -33,6 +35,8 @@ class CodeReviewAutoloader {
 				$this->registerDirectory($path, $prefix . pathinfo($path, PATHINFO_FILENAME));
 			} elseif (strtolower(pathinfo($path, PATHINFO_EXTENSION)) == 'php') {
 				$name = $prefix . pathinfo($path, PATHINFO_FILENAME);
+				$this->classMap[$name] = $path;
+				$name = str_replace('_', '\\', $name); // register again in case it was namespaced
 				$this->classMap[$name] = $path;
 			}
 		}

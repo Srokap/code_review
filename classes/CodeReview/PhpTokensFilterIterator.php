@@ -1,5 +1,7 @@
 <?php
-class PhpTokensFilterIterator extends FilterIterator {
+namespace CodeReview;
+
+class PhpTokensFilterIterator extends \FilterIterator {
 
 	/**
 	 * @var array

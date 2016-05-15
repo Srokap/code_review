@@ -1,10 +1,10 @@
 <?php
-namespace Srokap\CodeReview\Tests;
+namespace CodeReview\Tests;
 
 class CodeFixerTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetBasicFunctionRenames() {
-		$fixes = new \CodeFixer();
+		$fixes = new \CodeReview\CodeFixer();
 
 		$renames = $fixes->getBasicFunctionRenames();
 

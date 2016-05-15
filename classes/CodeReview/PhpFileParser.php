@@ -1,9 +1,11 @@
 <?php
+namespace CodeReview;
+
 /**
  * Splits file source to tokens, provides ways to manipulate tokens list and output modified source.
  * Intended to help in code replacements on language syntax level.
  */
-class PhpFileParser implements Iterator, ArrayAccess {
+class PhpFileParser implements \Iterator, \ArrayAccess {
 
 	/**
 	 * @var string original file name
@@ -22,7 +24,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 
 	/**
 	 * @param $fileName
-	 * @throws CodeReview_IOException
+	 * @throws \CodeReview\IOException
 	 * @throws Exception
 	 */
 	public function __construct($fileName) {
@@ -31,12 +33,12 @@ class PhpFileParser implements Iterator, ArrayAccess {
 
 		$contents = file_get_contents($fileName);
 		if ($contents === false) {
-			throw new CodeReview_IOException("Error while fetching contents of file $fileName");
+			throw new IOException("Error while fetching contents of file $fileName");
 		}
 
 		$this->sha1hash = sha1_file($fileName);
 		if ($this->sha1hash === false) {
-			throw new CodeReview_IOException("Error while computing SHA1 hash of file $fileName");
+			throw new IOException("Error while computing SHA1 hash of file $fileName");
 		}
 
 		$this->tokens = token_get_all($contents);
@@ -66,19 +68,19 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 * Uses SHA1 hash to determine if file contents has changed since analysis.
 	 *
 	 * @return bool
-	 * @throws CodeReview_IOException
+	 * @throws \CodeReview\IOException
 	 * @throws LogicException
 	 */
 	protected function validateFileContents() {
 		if (!$this->fileName) {
-			throw new LogicException("Missing file's path. Looks like severe internal error.");
+			throw new \LogicException("Missing file's path. Looks like severe internal error.");
 		}
 		$this->validateFilePath($this->fileName);
 		if (!$this->sha1hash) {
-			throw new LogicException("Missing file's SHA1 hash. Looks like severe internal error.");
+			throw new \LogicException("Missing file's SHA1 hash. Looks like severe internal error.");
 		}
 		if ($this->sha1hash !== sha1_file($this->fileName)) {
-			throw new CodeReview_IOException("The file on disk has changed and this " . get_class($this) . " class instance is no longer valid for use. Please create fresh instance.");
+			throw new IOException("The file on disk has changed and this " . get_class($this) . " class instance is no longer valid for use. Please create fresh instance.");
 		}
 		return true;
 	}
@@ -88,17 +90,17 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	 *
 	 * @param $fileName
 	 * @return bool
-	 * @throws CodeReview_IOException
+	 * @throws \CodeReview\IOException
 	 */
 	protected function validateFilePath($fileName) {
 		if (!file_exists($fileName)) {
-			throw new CodeReview_IOException("File $fileName does not exists");
+			throw new IOException("File $fileName does not exists");
 		}
 		if (!is_file($fileName)) {
-			throw new CodeReview_IOException("$fileName must be a file");
+			throw new IOException("$fileName must be a file");
 		}
 		if (!is_readable($fileName)) {
-			throw new CodeReview_IOException("File $fileName is not readable");
+			throw new IOException("File $fileName is not readable");
 		}
 		return true;
 	}
@@ -225,7 +227,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 	/**
 	 * @param string $fileName
 	 * @return bool|string
-	 * @throws CodeReview_IOException
+	 * @throws \CodeReview\IOException
 	 */
 	public function exportPhp($fileName = null) {
 		$source = '';
@@ -241,7 +243,7 @@ class PhpFileParser implements Iterator, ArrayAccess {
 
 		if ($fileName !== null) {
 			if (!is_writable($fileName)) {
-				throw new CodeReview_IOException("$fileName must be writable");
+				throw new IOException("$fileName must be writable");
 			}
 			return file_put_contents($fileName, $source) !== false;
 		} else {

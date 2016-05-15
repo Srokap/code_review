@@ -1,5 +1,5 @@
 <?php
-namespace Srokap\CodeReview\Tests;
+namespace CodeReview\Tests;
 
 class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 
@@ -28,7 +28,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('foobardummyclass::deprecatedpublic', $functions);
 
 		$deprecatedFunction1 = $functions['dummy_deprecated_function1'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction1);
+		$this->assertInstanceOf('\CodeReview\Issues\DeprecatedIssue', $deprecatedFunction1);
 		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction1);
 		$this->assertFalse(is_array($deprecatedFunction1));
 		$this->assertArrayHasKey('name', $deprecatedFunction1);
@@ -48,7 +48,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 			(string)$deprecatedFunction1);
 
 		$deprecatedFunction2 = $functions['dummy_deprecated_function2'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction2);
+		$this->assertInstanceOf('\CodeReview\Issues\DeprecatedIssue', $deprecatedFunction2);
 		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction2);
 		$this->assertFalse(is_array($deprecatedFunction2));
 		$this->assertArrayHasKey('name', $deprecatedFunction2);
@@ -68,7 +68,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 			(string)$deprecatedFunction2);
 
 		$deprecatedFunction3 = $functions['foobardummyclass::deprecatedprivate'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction3);
+		$this->assertInstanceOf('\CodeReview\Issues\DeprecatedIssue', $deprecatedFunction3);
 		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction3);
 		$this->assertFalse(is_array($deprecatedFunction3));
 		$this->assertArrayHasKey('name', $deprecatedFunction3);
@@ -88,7 +88,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 			(string)$deprecatedFunction3);
 
 		$deprecatedFunction4 = $functions['foobardummyclass::deprecatedprotected'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction4);
+		$this->assertInstanceOf('\CodeReview\Issues\DeprecatedIssue', $deprecatedFunction4);
 		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction4);
 		$this->assertFalse(is_array($deprecatedFunction4));
 		$this->assertArrayHasKey('name', $deprecatedFunction4);
@@ -108,7 +108,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 			(string)$deprecatedFunction4);
 
 		$deprecatedFunction5 = $functions['foobardummyclass::deprecatedpublic'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction5);
+		$this->assertInstanceOf('\CodeReview\Issues\DeprecatedIssue', $deprecatedFunction5);
 		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction5);
 		$this->assertFalse(is_array($deprecatedFunction5));
 		$this->assertArrayHasKey('name', $deprecatedFunction5);
@@ -139,7 +139,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('foobardummyclass::deprecatedpublic', $functions);
 
 		$deprecatedFunction1 = $functions['foobardummyclass::deprecatedpublic'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction1);
+		$this->assertInstanceOf('\CodeReview\Issues\DeprecatedIssue', $deprecatedFunction1);
 		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction1);
 		$this->assertFalse(is_array($deprecatedFunction1));
 		$this->assertArrayHasKey('name', $deprecatedFunction1);
@@ -169,7 +169,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		 */
 		$this->assertArrayHasKey('foobar_private_api', $functions);
 		$privateFunction = $functions['foobar_private_api'];
-		$this->assertInstanceOf('CodeReview_Issues_Private', $privateFunction);
+		$this->assertInstanceOf('\CodeReview\Issues\PrivateIssue', $privateFunction);
 		$this->assertInstanceOf('ArrayAccess', $privateFunction);
 		$this->assertFalse(is_array($privateFunction));
 
@@ -190,7 +190,7 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 		 */
 		$this->assertArrayHasKey('foobar_undocumented', $functions);
 		$undocumentedFunction = $functions['foobar_undocumented'];
-		$this->assertInstanceOf('CodeReview_Issues_NotDocumented', $undocumentedFunction);
+		$this->assertInstanceOf('\CodeReview\Issues\NotDocumentedIssue', $undocumentedFunction);
 		$this->assertInstanceOf('ArrayAccess', $undocumentedFunction);
 		$this->assertFalse(is_array($undocumentedFunction));
 

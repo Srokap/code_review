@@ -1,6 +1,7 @@
 <?php
+namespace CodeReview\Issues;
 
-class CodeReview_Issues_Private extends CodeReview_Issues_Abstract {
+class PrivateIssue extends AbstractIssue {
 
 	public function __construct(array $params = array()) {
 		$params['reason'] = 'private';

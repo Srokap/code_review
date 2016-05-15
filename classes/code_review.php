@@ -18,7 +18,7 @@ class code_review {
 	 */
 	public static function boot() {
 		if (version_compare(elgg_get_version(true), '1.9', '<')) {
-			$autoloader = new CodeReviewAutoloader();
+			$autoloader = new \CodeReview\Autoloader();
 			$autoloader->register();
 		}
 
@@ -44,7 +44,7 @@ class code_review {
 	/**
 	 * @param array $options
 	 *
-	 * @todo Move into CodeReviewConfig instead
+	 * @todo Move into \CodeReview\Config instead
 	 */
 	public static function initConfig(array $options) {
 		self::$config = $options;
@@ -140,7 +140,7 @@ class code_review {
 		$vv = array();
 		
 		foreach ($i as $file) {
-			if ($file instanceof SplFileInfo) {
+			if ($file instanceof \SplFileInfo) {
 				if (preg_match('#^deprecated-([0-9\.]*)$#', $file->getBasename('.php'), $matches)) {
 					$version = $matches[1];
 				} else {
@@ -245,7 +245,7 @@ class code_review {
 		$functs = array();
 		
 		foreach ($i as $file) {
-			if ($file instanceof SplFileInfo) {
+			if ($file instanceof \SplFileInfo) {
 				if (preg_match('#^deprecated-([0-9\.]*)$#', $file->getBasename('.php'), $matches)) {
 					$version = $matches[1];
 				} else {
@@ -257,7 +257,7 @@ class code_review {
 					continue;
 				}
 
-				$tokens = new PhpFileParser($file->getPathname());
+				$tokens = new \CodeReview\PhpFileParser($file->getPathname());
 				$functs = array_merge($functs, self::getDeprecatedFunctionsFromTokens($tokens, $file, $version, $maxVersion));
 			}
 		}
@@ -279,8 +279,8 @@ class code_review {
 		$functs = array();
 
 		foreach ($i as $file) {
-			if ($file instanceof SplFileInfo) {
-				$tokens = new PhpFileParser($file->getPathname());
+			if ($file instanceof \SplFileInfo) {
+				$tokens = new \CodeReview\PhpFileParser($file->getPathname());
 				$functs = array_merge($functs, self::getPrivateFunctionsFromTokens($tokens, $file));
 			}
 		}
@@ -290,13 +290,13 @@ class code_review {
 	/**
 	 * Redurns deprecated functions from particular file.
 	 *
-	 * @param PhpFileParser $tokens
-	 * @param SplFileInfo   $file
+	 * @param \CodeReview\PhpFileParser $tokens
+	 * @param \SplFileInfo   $file
 	 * @param               $version
 	 * @param               $maxVersion max version to return
 	 * @return array
 	 */
-	private static function getDeprecatedFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file, $version, $maxVersion) {
+	private static function getDeprecatedFunctionsFromTokens(\CodeReview\PhpFileParser $tokens, \SplFileInfo $file, $version, $maxVersion) {
 		$namespace = '';
 		$className = null;
 		$functs = array();
@@ -368,7 +368,7 @@ class code_review {
 					$data = array_merge($data, $info);
 				}
 
-				$functs[strtolower($functionName)] = new CodeReview_Issues_Deprecated($data);
+				$functs[strtolower($functionName)] = new \CodeReview\Issues\DeprecatedIssue($data);
 			}
 		}
 		return $functs;
@@ -377,12 +377,12 @@ class code_review {
 	/**
 	 * Redurns deprecated functions from particular file.
 	 *
-	 * @param PhpFileParser $tokens
-	 * @param SplFileInfo   $file
+	 * @param \CodeReview\PhpFileParser $tokens
+	 * @param \SplFileInfo   $file
 	 * @param               $version
 	 * @return array
 	 */
-	private static function getPrivateFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file) {
+	private static function getPrivateFunctionsFromTokens(\CodeReview\PhpFileParser $tokens, \SplFileInfo $file) {
 		$namespace = '';
 		$className = null;
 		$functs = array();
@@ -435,10 +435,10 @@ class code_review {
 						//skipping - not private
 						continue;
 					}
-					$data = new CodeReview_Issues_Private($data);
+					$data = new \CodeReview\Issues\PrivateIssue($data);
 				} else {
 					//non documented means private
-					$data = new CodeReview_Issues_NotDocumented($data);
+					$data = new \CodeReview\Issues\NotDocumentedIssue($data);
 				}
 
 				$functs[strtolower($functionName)] = $data;

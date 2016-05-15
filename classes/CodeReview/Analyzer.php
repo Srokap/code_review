@@ -1,8 +1,10 @@
 <?php
-class CodeReviewAnalyzer {
+namespace CodeReview;
+
+class Analyzer {
 
 	/**
-	 * @var CodeReviewConfig
+	 * @var \CodeReview\Config
 	 */
 	protected $options;
 
@@ -41,12 +43,12 @@ class CodeReviewAnalyzer {
 	protected $fixProblems;
 
 	/**
-	 * @param CodeReviewConfig $options
+	 * @param \CodeReview\Config $options
 	 */
-	public function __construct(CodeReviewConfig $options = null) {
+	public function __construct(\CodeReview\Config $options = null) {
 
 		if ($options === null) {
-			$options = new CodeReviewConfig();
+			$options = new \CodeReview\Config();
 		}
 		$this->options = $options;
 
@@ -56,19 +58,19 @@ class CodeReviewAnalyzer {
 
 	/**
 	 * @param string $subPath
-	 * @throws CodeReview_IOException
+	 * @throws \CodeReview\IOException
 	 * @return CodeReviewFileFilterIterator
 	 */
 	public function getPhpFilesIterator($subPath = 'engine/') {
-		$config = code_review::getConfig();
+		$config = \code_review::getConfig();
 		$path = $config['path'] . $subPath;
 		if (!file_exists($path)) {
-			throw new CodeReview_IOException("Invalid subPath specified. $path does not exists!");
+			throw new \CodeReview\IOException("Invalid subPath specified. $path does not exists!");
 		}
-		$i = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
-		$i = new RecursiveIteratorIterator($i, RecursiveIteratorIterator::LEAVES_ONLY);
-		$i = new RegexIterator($i, "/.*\.php/");
-		$i = new CodeReviewFileFilterIterator($i, $config['path'], $this->options);
+		$i = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS);
+		$i = new \RecursiveIteratorIterator($i, \RecursiveIteratorIterator::LEAVES_ONLY);
+		$i = new \RegexIterator($i, "/.*\.php/");
+		$i = new \CodeReview\FileFilterIterator($i, $config['path'], $this->options);
 		return $i;
 	}
 
@@ -89,14 +91,14 @@ class CodeReviewAnalyzer {
 
 		$functions = array();
 		if ($options->isDeprecatedFunctionsTestEnabled()) {
-			$functions = array_merge($functions, code_review::getDeprecatedFunctionsList($options->getMaxVersion()));
+			$functions = array_merge($functions, \code_review::getDeprecatedFunctionsList($options->getMaxVersion()));
 		}
 		if ($options->isPrivateFunctionsTestEnabled()) {
-			$functions = array_merge($functions, code_review::getPrivateFunctionsList());
+			$functions = array_merge($functions, \code_review::getPrivateFunctionsList());
 		}
 
 		foreach ($i as $filePath => $file) {
-			if ($file instanceof SplFileInfo) {
+			if ($file instanceof \SplFileInfo) {
 				$result = $this->processFile($filePath, $functions);
 				$this->filesAnalyzed++;
 				if (!empty($result['problems'])) {
@@ -148,7 +150,7 @@ class CodeReviewAnalyzer {
 		$functions = get_defined_functions();
 		$functions = array_filter($functions['user'], 'strtolower');
 		$calledFunctions = array_filter($this->calledFunctions, 'strtolower');
-		$deprecatedFunctions = array_filter(array_keys(code_review::getDeprecatedFunctionsList($this->maxVersion)), 'strtolower');
+		$deprecatedFunctions = array_filter(array_keys(\code_review::getDeprecatedFunctionsList($this->maxVersion)), 'strtolower');
 		$functions = array_diff($functions, $calledFunctions, $deprecatedFunctions);
 
 		foreach ($functions as $key => $function) {
@@ -167,7 +169,7 @@ class CodeReviewAnalyzer {
 		$result = "Not called but defined funcions:\n";
 		$baseLenght = strlen(elgg_get_root_path());
 		foreach (array_values($functions) as $functionName) {
-			$reflectionFunction = new ReflectionFunction($functionName);
+			$reflectionFunction = new \ReflectionFunction($functionName);
 			$path = substr($reflectionFunction->getFileName(), $baseLenght);
 			if (strpos($path, 'engine') !== 0) {
 				continue;
@@ -267,7 +269,7 @@ class CodeReviewAnalyzer {
 		if ($changes) {
 			try {
 				$phpTokens->exportPhp($filePath);
-			} catch (CodeReview_IOException $e) {
+			} catch (\CodeReview\IOException $e) {
 				echo '*** Error: ' . $e->getMessage() . " ***\n";
 			}
 		}

@@ -1,8 +1,10 @@
 <?php
+namespace CodeReview;
+
 /**
  * Simple configuration container handling basic options parsing nad providing convenient methods.
  */
-class CodeReviewConfig {
+class Config {
 
 	const T_PLUGINS_ALL = 0;
 	const T_PLUGINS_ACTIVE = 1;
@@ -94,7 +96,7 @@ class CodeReviewConfig {
 	public function getPluginIds($type) {
 		$pluginsDirs = false;
 
-		$config = code_review::getConfig();
+		$config = \code_review::getConfig();
 
 		switch ($type) {
 			case self::T_PLUGINS_INACTIVE:
@@ -117,7 +119,7 @@ class CodeReviewConfig {
 				}
 				break;
 			case self::T_PLUGINS_ALL:
-				$pluginsDirs = code_review::getPluginDirsInDir($config['pluginspath']);
+				$pluginsDirs = \code_review::getPluginDirsInDir($config['pluginspath']);
 				break;
 
 		}

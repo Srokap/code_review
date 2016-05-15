@@ -1,6 +1,7 @@
 <?php
+namespace CodeReview\Issues;
 
-class CodeReview_Issues_Deprecated extends CodeReview_Issues_Abstract {
+class DeprecatedIssue extends AbstractIssue {
 
 	public function __construct(array $params = array()) {
 		$params['reason'] = 'deprecated';

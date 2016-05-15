@@ -1,10 +1,10 @@
 <?php
-namespace Srokap\CodeReview\Tests;
+namespace CodeReview\Tests;
 
 class CodeReviewAutoloaderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testRegister() {
-		$autoloader = new \CodeReviewAutoloader();
+		$autoloader = new \CodeReview\Autoloader();
 
 		$this->assertFalse($autoloader->unregister());
 		//double register
@@ -18,12 +18,13 @@ class CodeReviewAutoloaderTest extends \PHPUnit_Framework_TestCase {
 	public function testClassExists() {
 		$classes = array(
 			'code_review',
-			'CodeFixer',
-			'CodeReviewAnalyzer',
-			'CodeReviewFileFilterIterator',
-			'PhpFileParser',
-			'PhpTokensFilterIterator',
-			'CodeReview_Foo_TestClass',
+			'\CodeReview\CodeFixer',
+			'\CodeReview\Analyzer',
+			'\CodeReview\FileFilterIterator',
+			'\CodeReview\Config',
+			'\CodeReview\PhpFileParser',
+			'\CodeReview\PhpTokensFilterIterator',
+			'\CodeReview\Foo\TestClass',
 		);
 		foreach ($classes as $class) {
 			$this->assertTrue(class_exists($class));

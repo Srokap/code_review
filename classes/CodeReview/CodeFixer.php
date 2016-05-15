@@ -1,4 +1,6 @@
 <?php
+namespace CodeReview;
+
 class CodeFixer {
 
 	/**

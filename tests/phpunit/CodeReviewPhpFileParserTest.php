@@ -1,18 +1,18 @@
 <?php
-namespace Srokap\CodeReview\Tests;
+namespace CodeReview\Tests;
 
 class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 
 	public function testNotExistingFile() {
 		$fileName = '/not/existing/file/path/to/php/file.php';
-		$this->setExpectedException('CodeReview_IOException', "File $fileName does not exists");
-		new \PhpFileParser($fileName);
+		$this->setExpectedException('\CodeReview\IOException', "File $fileName does not exists");
+		new \CodeReview\PhpFileParser($fileName);
 	}
 
 	public function testNotAFile() {
 		$fileName = dirname(__FILE__);//just a path to directory
-		$this->setExpectedException('CodeReview_IOException', "$fileName must be a file");
-		new \PhpFileParser($fileName);
+		$this->setExpectedException('\CodeReview\IOException', "$fileName must be a file");
+		new \CodeReview\PhpFileParser($fileName);
 	}
 
 	/**
@@ -20,7 +20,7 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testUnserializeInternalErrorNoFileName() {
 		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
-		$tokens = new \PhpFileParser($fileName);
+		$tokens = new \CodeReview\PhpFileParser($fileName);
 
 		$reflection = new \ReflectionClass($tokens);
 		$reflection_property = $reflection->getProperty('fileName');
@@ -39,14 +39,14 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 	public function testUnserializeInternalErrorBadFileName() {
 		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
 		$badPath = dirname(__FILE__) . '/test_files/php/input/not_existing_file.php';
-		$tokens = new \PhpFileParser($fileName);
+		$tokens = new \CodeReview\PhpFileParser($fileName);
 
 		$reflection = new \ReflectionClass($tokens);
 		$reflection_property = $reflection->getProperty('fileName');
 		$reflection_property->setAccessible(true);
 		$reflection_property->setValue($tokens, $badPath);
 
-		$this->setExpectedException('CodeReview_IOException', "File $badPath does not exists");
+		$this->setExpectedException('\CodeReview\IOException', "File $badPath does not exists");
 
 		$serializedTokens = serialize($tokens);
 		unserialize($serializedTokens);
@@ -57,7 +57,7 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testUnserializeInternalErrorNoSha1() {
 		$fileName = dirname(__FILE__) . '/test_files/php/input/sample1.php';
-		$tokens = new \PhpFileParser($fileName);
+		$tokens = new \CodeReview\PhpFileParser($fileName);
 
 		$reflection = new \ReflectionClass($tokens);
 		$reflection_property = $reflection->getProperty('sha1hash');
@@ -71,7 +71,7 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testSerializationDataPreserve() {
-		$tokens = new \PhpFileParser(__FILE__);
+		$tokens = new \CodeReview\PhpFileParser(__FILE__);
 		$serializedTokens = serialize($tokens);
 		$unserializedTokens = unserialize($serializedTokens);
 		$this->assertEquals($tokens, $unserializedTokens);
@@ -100,14 +100,14 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 		$tests = $this->getTestsPhpFiles();
 		foreach ($tests as $test) {
 			list($inPath, ) = $test;
-			$tokens = new \PhpFileParser($inPath);
+			$tokens = new \CodeReview\PhpFileParser($inPath);
 
 			$serializedClass = serialize($tokens);
 			$this->assertTrue(is_string($serializedClass));
 			$this->assertTrue(strlen($serializedClass) > 0);
 
 			$actual = unserialize($serializedClass);
-			$expected = new \PhpFileParser($inPath);
+			$expected = new \CodeReview\PhpFileParser($inPath);
 
 			$this->assertEquals($expected, $actual);
 		}
@@ -117,7 +117,7 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 		$tests = $this->getTestsPhpFiles();
 		foreach ($tests as $test) {
 			list($inPath, ) = $test;
-			$tokens = new \PhpFileParser($inPath);
+			$tokens = new \CodeReview\PhpFileParser($inPath);
 
 			$actual = $tokens->exportPhp();
 
@@ -135,7 +135,7 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 		foreach ($tests as $test) {
 			list($inPath, ) = $test;
 
-			$tokens = new \PhpFileParser($inPath);
+			$tokens = new \CodeReview\PhpFileParser($inPath);
 
 			//testing repeated iteration and isset
 			foreach (array(1,2) as $i) {
@@ -170,21 +170,21 @@ class CodeReviewPhpFileParserTest extends \PHPUnit_Framework_TestCase {
 
 			$this->assertNotEquals(file_put_contents($tmpPath, $content), false);
 
-			$tokens = new \PhpFileParser($tmpPath);
+			$tokens = new \CodeReview\PhpFileParser($tmpPath);
 			$serializedTokens = serialize($tokens);
 
 			//modify file
 			$this->assertNotEquals(file_put_contents($tmpPath, 'modified' . $content), false);
 
-//			$this->setExpectedException('CodeReview_IOException');
+//			$this->setExpectedException('\CodeReview\IOException');
 			try {
 				//this shall fail
 				unserialize($serializedTokens);
-			} catch (\CodeReview_IOException $e) {
-				$this->assertEquals("The file on disk has changed and this PhpFileParser class instance is no longer valid for use. Please create fresh instance.", $e->getMessage());
+			} catch (\CodeReview\IOException $e) {
+				$this->assertEquals("The file on disk has changed and this CodeReview\\PhpFileParser class instance is no longer valid for use. Please create fresh instance.", $e->getMessage());
 				continue;
 			}
-			$this->fail("Expected CodeReview_IOException to be thrown!");
+			$this->fail('Expected \CodeReview\IOException to be thrown!');
 		}
 	}
 }

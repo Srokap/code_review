@@ -1,5 +1,7 @@
 <?php
-class CodeReviewFileFilterIterator extends FilterIterator {
+namespace CodeReview;
+
+class FileFilterIterator extends \FilterIterator {
 
 	/**
 	 * @var string
@@ -9,18 +11,18 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 	/**
 	 * @param Iterator         $iterator
 	 * @param string           $basePath
-	 * @param CodeReviewConfig $config
-	 * @throws CodeReview_IOException
+	 * @param \CodeReview\Config $config
+	 * @throws \CodeReview\IOException
 	 */
-	public function __construct($iterator, $basePath, CodeReviewConfig $config) {
+	public function __construct($iterator, $basePath, \CodeReview\Config $config) {
 		if (!is_dir($basePath)) {
-			throw new CodeReview_IOException("Directory $basePath does not exists");
+			throw new \CodeReview\IOException("Directory $basePath does not exists");
 		}
 		$basePath = rtrim($basePath, '/\\') . '/';
 		$this->basePath = $basePath;
 
 		if ($config->isSkipInactivePluginsEnabled()) {
-			$pluginsDirs = $config->getPluginIds(CodeReviewConfig::T_PLUGINS_INACTIVE);
+			$pluginsDirs = $config->getPluginIds(\CodeReview\Config::T_PLUGINS_INACTIVE);
 			foreach ($pluginsDirs as $pluginDir) {
 				$this->blacklist[] = 'mod/' . $pluginDir . '/.*';
 			}
@@ -43,7 +45,7 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 	public function accept () {
 		//TODO blacklisting documentation, disabled plugins and installation script
 		$file = $this->current();
-		if ($file instanceof SplFileInfo) {
+		if ($file instanceof \SplFileInfo) {
 			$path = $file->getPathname();
 			$path = str_replace('\\', '/', $path);
 			$path = str_replace('//', '/', $path);

@@ -3,7 +3,7 @@
 class CodeReview_Issues_DeprecatedTest extends PHPUnit_Framework_TestCase {
 
 	public function testIsEditable() {
-		$object = new CodeReview_Issues_Deprecated(array(
+		$object = new \CodeReview\Issues\DeprecatedIssue(array(
 			'name' => 'function_name',
 			'version' => '1.0',
 			'file' => 'info.php',

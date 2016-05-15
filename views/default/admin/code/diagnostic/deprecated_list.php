@@ -18,7 +18,7 @@ foreach ($functions as $name => $data) {
 uksort($groups, 'version_compare');
 $groups = array_reverse($groups, true);
 
-$fixes = new CodeFixer();
+$fixes = new \CodeReview\CodeFixer();
 $replaces = $fixes->getBasicFunctionRenames();
 
 foreach ($groups as $version => $group) {

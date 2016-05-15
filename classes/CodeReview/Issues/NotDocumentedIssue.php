@@ -1,6 +1,7 @@
 <?php
+namespace CodeReview\Issues;
 
-class CodeReview_Issues_NotDocumented extends CodeReview_Issues_Abstract {
+class NotDocumentedIssue extends AbstractIssue {
 
 	public function __construct(array $params = array()) {
 		$params['reason'] = 'not_documented';

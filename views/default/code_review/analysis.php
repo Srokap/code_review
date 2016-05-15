@@ -4,7 +4,7 @@ admin_gatekeeper();
 
 ini_set('max_execution_time', 0);
 
-$options = new CodeReviewConfig();
+$options = new \CodeReview\Config();
 $options->parseInput($vars);
 
 /*
@@ -16,10 +16,10 @@ $body = '';
 $mt = microtime(true);
 
 try {
-	$analyzer = new CodeReviewAnalyzer($options);
+	$analyzer = new \CodeReview\Analyzer($options);
 	$analyzer->analyze();
 	$body .= $analyzer->outputReport();
-} catch (CodeReview_IOException $e) {
+} catch (\CodeReview\IOException $e) {
 	echo "*** Error: " . $e->getMessage() . " ***\n";
 }
 

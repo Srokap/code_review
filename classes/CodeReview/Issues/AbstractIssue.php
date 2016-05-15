@@ -1,8 +1,7 @@
 <?php
-/**
- * Class CodeReview_Issues_Abstract
- */
-abstract class CodeReview_Issues_Abstract implements ArrayAccess {
+namespace CodeReview\Issues;
+
+abstract class AbstractIssue implements \ArrayAccess {
 
 	/**
 	 * @var array

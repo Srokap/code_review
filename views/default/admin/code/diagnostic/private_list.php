@@ -5,7 +5,7 @@ echo elgg_view('code_review/navigation');
 //fetch all
 $functions = code_review::getPrivateFunctionsList();
 
-$fixes = new CodeFixer();
+$fixes = new \CodeReview\CodeFixer();
 
 $title = elgg_echo('code_review:private_list:title');
 $body = "<table class=\"elgg-table-alt\">";
