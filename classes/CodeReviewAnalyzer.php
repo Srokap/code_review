@@ -183,8 +183,6 @@ class CodeReviewAnalyzer {
 	 */
 	public function outputReport() {
 
-		$options = $this->options;
-
 		$result = $this->outputReportHeader();
 
 		/*
@@ -196,7 +194,6 @@ class CodeReviewAnalyzer {
 			//problems
 			foreach ($items['problems'] as $row) {
 				list($data, $function, $line) = $row;
-				$version = $data['version'];
 				$result .= "    " . (string)$data . "\n";
 			}
 

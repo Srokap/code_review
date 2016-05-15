@@ -14,6 +14,48 @@ class CodeReviewConfig {
 	protected $options = array();
 
 	/**
+	 * Selected subdirectory of rootpath to find problems in
+	 *
+	 * @var string|null
+	 */
+	protected $subPath = null;
+
+	/**
+	 * Maximum version to analyze
+	 *
+	 * @var string|null
+	 */
+	protected $maxVersion = null;
+
+	/**
+	 * Should we include disabled plugins within mod/ directory for analysis
+	 *
+	 * @var bool
+	 */
+	protected $includeDisabledPlugins = false;
+
+	/**
+	 * Should we perform deprecated functions usage search.
+	 *
+	 * @var bool
+	 */
+	protected $findDeprecatedFunctions = true;
+
+	/**
+	 * Should we perform private functions usage search.
+	 *
+	 * @var bool
+	 */
+	protected $findPrivateFunctions = true;
+
+	/**
+	 * Should we attempt to fix bad code? THIS IS DANGEROUS OPTION, CAREFUL!
+	 *
+	 * @var bool
+	 */
+	protected $fixProblems = false;
+
+	/**
 	 * @param array $options
 	 */
 	public function __construct(array $options = array()) {

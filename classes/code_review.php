@@ -148,7 +148,7 @@ class code_review {
 				} else {
 					$version = null;
 				}
-				if ($version) {
+				if ($version !== null) {
 					$vv[] = $version;
 				}
 			}
@@ -221,7 +221,7 @@ class code_review {
 //				'fixinfo' => strlen($deprecatedInfo) > 0 ? $deprecatedInfo : false,
 				'fixinfoshort' => strlen($shortDeprecatedInfo) > 0 ? $shortDeprecatedInfo : false,
 			);
-			if ($version) {
+			if ($version !== null) {
 				//skip versions higher than selected
 				if ($maxVersion && version_compare($version, $maxVersion) > 0) {
 					return false;
@@ -337,12 +337,12 @@ class code_review {
 			//TODO we need to filter out closures
 
 			if ($tokens->isEqualToToken(T_FUNCTION, $key)) {
-				if ($className) {
+				if ($className !== null) {
 					$functionName = $className . '::' . $tokens[$key+2][1];
 					try {
 						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
 					} catch (ReflectionException $e) {
-						var_dump($e->getMessage());
+//						var_dump($className, $functionName, $e->getMessage());
 						continue;
 					}
 
@@ -351,7 +351,7 @@ class code_review {
 					try {
 						$reflection = new ReflectionFunction($functionName);
 					} catch (ReflectionException $e) {
-						var_dump($e->getMessage());
+//						var_dump($functionName, $e->getMessage());
 						continue;
 					}
 				}
@@ -421,7 +421,7 @@ class code_review {
 			}
 
 			if ($tokens->isEqualToToken(T_FUNCTION, $key)) {
-				if ($className) {
+				if ($className !== null) {
 					$functionName = $className . '::' . $tokens[$key+2][1];
 					try {
 						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
@@ -472,7 +472,7 @@ class code_review {
 	 * @return array Array of directory names (not full paths)
 	 */
 	public static function getPluginDirsInDir($dir = null) {
-		if (!$dir) {
+		if ($dir === null) {
 			$dir = self::$config['pluginspath'];
 		}
 
