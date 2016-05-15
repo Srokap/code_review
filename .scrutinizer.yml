@@ -1,7 +1,13 @@
+checks:
+    php:
+        code_rating: true
+        duplication: true
+
 filter:
     excluded_paths:
         - 'vendors/*'
         - 'tests/phpunit/test_files/*'
+
 tools:
     js_hint: true
     php_mess_detector: true

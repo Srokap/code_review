@@ -9,6 +9,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 
 		code_review::initConfig(array(
 			'path' => $path,
+			'engine_path' => $path . 'engine/',
 			'pluginspath' => $path . 'mod/',
 		));
 	}

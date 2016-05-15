@@ -79,6 +79,7 @@ class CodeReviewFileFilterIteratorTest extends PHPUnit_Framework_TestCase {
 
 		code_review::initConfig(array(
 			'path' => $path,
+			'engine_path' => $path . 'engine/',
 			'pluginspath' => $path . 'mod/',
 			'plugins_getter' => array($this, 'mocked_plugins_getter'),
 		));
