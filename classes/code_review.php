@@ -267,7 +267,7 @@ class code_review {
 				}
 				
 				//skip versions higher than selected
-				if ($maxVersion && $version && version_compare($version, $maxVersion) > 0) {
+				if ($maxVersion && $version !== null && version_compare($version, $maxVersion) > 0) {
 					continue;
 				}
 

@@ -23,9 +23,9 @@ class CodeReviewConfig {
 	/**
 	 * Maximum version to analyze
 	 *
-	 * @var string|null
+	 * @var string
 	 */
-	protected $maxVersion = null;
+	protected $maxVersion = '';
 
 	/**
 	 * Should we include disabled plugins within mod/ directory for analysis
@@ -141,7 +141,7 @@ class CodeReviewConfig {
 		$subPath = $subPath . '/';
 
 		$this->subPath = $subPath;
-		$this->maxVersion = elgg_extract('version', $vars);
+		$this->maxVersion = elgg_extract('version', $vars, '');
 		$this->includeDisabledPlugins = elgg_extract('include_disabled_plugins', $vars, false);
 		$this->findDeprecatedFunctions = elgg_extract('find_deprecated_functions', $vars, true);
 		$this->findPrivateFunctions = elgg_extract('find_private_functions', $vars, true);

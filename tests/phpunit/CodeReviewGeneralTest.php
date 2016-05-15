@@ -205,4 +205,10 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 			. $undocumentedFunction['name'] . " (use of undocumented core function is unsafe)",
 			(string)$undocumentedFunction);
 	}
+
+	public function testGetVersionsList() {
+		$versions = code_review::getVersionsList();
+
+		$this->assertEquals(['1.0', '1.2'], $versions);
+	}
 }
