@@ -1,13 +1,14 @@
 <?php
+namespace Srokap\CodeReview\Tests;
 
-class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
+class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 
 	public function setUp() {
 		$path = dirname(__FILE__) . '/test_files/fake_elgg/';
 
 		require_once($path . 'engine/start.php');
 
-		code_review::initConfig(array(
+		\code_review::initConfig(array(
 			'path' => $path,
 			'engine_path' => $path . 'engine/',
 			'pluginspath' => $path . 'mod/',
@@ -18,7 +19,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 	 * Should check that code_review::getDeprecatedFunctionsList returns expected results for functions defined in deprecated-*
 	 */
 	public function testGetDeprecatedFunctionsList12() {
-		$functions = code_review::getDeprecatedFunctionsList('1.2');
+		$functions = \code_review::getDeprecatedFunctionsList('1.2');
 		$this->assertCount(5, $functions);
 		$this->assertArrayHasKey('dummy_deprecated_function1', $functions);
 		$this->assertArrayHasKey('dummy_deprecated_function2', $functions);
@@ -131,7 +132,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 	 * Should check that code_review::getDeprecatedFunctionsList returns expected results for functions defined in deprecated-*
 	 */
 	public function testGetDeprecatedFunctionsList11() {
-		$functions = code_review::getDeprecatedFunctionsList('1.1');
+		$functions = \code_review::getDeprecatedFunctionsList('1.1');
 		$this->assertCount(1, $functions);
 		$this->assertArrayNotHasKey('dummy_deprecated_function1', $functions);
 		$this->assertArrayNotHasKey('dummy_deprecated_function2', $functions);
@@ -160,7 +161,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 
 	public function testGetPrivateFunctionsList() {
 
-		$functions = code_review::getPrivateFunctionsList();
+		$functions = \code_review::getPrivateFunctionsList();
 		$this->assertArrayNotHasKey('dummy_deprecated_function1', $functions);
 
 		/*
@@ -207,7 +208,7 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetVersionsList() {
-		$versions = code_review::getVersionsList();
+		$versions = \code_review::getVersionsList();
 
 		$this->assertEquals(['1.0', '1.2'], $versions);
 	}

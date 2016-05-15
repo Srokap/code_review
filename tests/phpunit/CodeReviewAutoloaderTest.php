@@ -1,9 +1,10 @@
 <?php
+namespace Srokap\CodeReview\Tests;
 
-class CodeReviewAutoloaderTest extends PHPUnit_Framework_TestCase {
+class CodeReviewAutoloaderTest extends \PHPUnit_Framework_TestCase {
 
 	public function testRegister() {
-		$autoloader = new CodeReviewAutoloader();
+		$autoloader = new \CodeReviewAutoloader();
 
 		$this->assertFalse($autoloader->unregister());
 		//double register

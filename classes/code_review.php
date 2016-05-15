@@ -108,13 +108,11 @@ class code_review {
 			'name' => 'admin/code/diagnostic/deprecated_list',
 			'href' => 'admin/code/diagnostic/deprecated_list',
 			'text' => elgg_echo('admin:code:diagnostic:deprecated_list'),
-//			'target' => '_blank',
 		));
 		$result[] = ElggMenuItem::factory(array(
 			'name' => 'admin/code/diagnostic/private_list',
 			'href' => 'admin/code/diagnostic/private_list',
 			'text' => elgg_echo('admin:code:diagnostic:private_list'),
-//			'target' => '_blank',
 		));
 		$result[] = ElggMenuItem::factory(array(
 			'name' => 'admin/code/diagnostic/functions_list',
@@ -202,7 +200,7 @@ class code_review {
 			//save and strip leading version info
 			$version = null;
 			preg_match('#^\s*([0-9]+\.[0-9]+)#', $deprecatedInfo, $matches);
-			if ($matches) {
+			if (!empty($matches)) {
 				$version = $matches[1];
 			}
 			$deprecatedInfo = preg_replace('#\s*[0-9](?:\.[0-9]+){1,2}\.?\s*#', "", $deprecatedInfo);
@@ -218,7 +216,6 @@ class code_review {
 
 			$result = array(
 				'deprecated' => true,
-//				'fixinfo' => strlen($deprecatedInfo) > 0 ? $deprecatedInfo : false,
 				'fixinfoshort' => strlen($shortDeprecatedInfo) > 0 ? $shortDeprecatedInfo : false,
 			);
 			if ($version !== null) {
@@ -228,17 +225,6 @@ class code_review {
 				}
 				$result['version'] = $version;
 			}
-			return $result;
-		}
-	}
-
-	private static function getPrivateInfoFromDocBlock($privateInfo) {
-		if (strpos($privateInfo, '@' . self::PRIVATE_TAG_PREFIX) === false){
-			return false;
-		} else {
-			$result = array(
-				'private' => true
-			);
 			return $result;
 		}
 	}
@@ -279,7 +265,6 @@ class code_review {
 	}
 
 	/**
-	 * @param string $maxVersion
 	 * @return array
 	 */
 	public static function getPrivateFunctionsList() {

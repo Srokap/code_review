@@ -42,7 +42,7 @@ class PhpTokensFilterIterator extends FilterIterator {
 	 * @return bool
 	 */
 	public function accept () {
-		$key = parent::key();
+		$key = $this->key();
 		$innerIterator = $this->getInnerIterator();
 		$token = $innerIterator[$key - $this->offset];
 		$label = null;

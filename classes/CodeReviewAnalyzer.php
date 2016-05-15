@@ -56,7 +56,6 @@ class CodeReviewAnalyzer {
 
 	/**
 	 * @param string $subPath
-	 * @param bool   $skipInactive
 	 * @throws CodeReview_IOException
 	 * @return CodeReviewFileFilterIterator
 	 */
@@ -193,7 +192,7 @@ class CodeReviewAnalyzer {
 
 			//problems
 			foreach ($items['problems'] as $row) {
-				list($data, $function, $line) = $row;
+				list($data, , $line) = $row;
 				$result .= "    " . (string)$data . "\n";
 			}
 
@@ -235,12 +234,6 @@ class CodeReviewAnalyzer {
 
 				// prepare normalized version of function name for matching
 				$functionName = strtolower($functionName);
-//				if ($token == T_CONSTANT_ENCAPSED_STRING && function_exists(trim($functionName, '\'""'))) {
-//					$functionName = trim($functionName, '\'""');
-//					if (!in_array($functionName, $this->calledFunctions)) {
-//						$this->calledFunctions[] = $functionName;
-//					}
-//				}
 
 				// check for function call
 				if ($token == T_STRING

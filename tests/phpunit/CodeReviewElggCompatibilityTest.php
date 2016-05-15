@@ -8,6 +8,7 @@ class CodeReviewElggCompatibilityTest extends PHPUnit_Framework_TestCase {
 
 		if (!function_exists('add_translation')) {
 			//whatever, we just test syntax correctness
+
 			function add_translation($country_code, $language_array) {
 				return true;
 			}
