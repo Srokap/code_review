@@ -210,6 +210,6 @@ class CodeReviewGeneralTest extends \PHPUnit_Framework_TestCase {
 	public function testGetVersionsList() {
 		$versions = \code_review::getVersionsList();
 
-		$this->assertEquals(['1.0', '1.2'], $versions);
+		$this->assertEquals(array('1.0', '1.2'), $versions);
 	}
 }
