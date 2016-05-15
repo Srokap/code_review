@@ -19,6 +19,11 @@ class CodeReviewAnalyzer {
 	protected $stats;
 
 	/**
+	 * @var integer
+	 */
+	protected $filesAnalyzed;
+
+	/**
 	 * @var string
 	 */
 	protected $maxVersion;
@@ -81,6 +86,7 @@ class CodeReviewAnalyzer {
 		$this->instantReplacements = $fixer->getBasicFunctionRenames($this->maxVersion);
 
 		$this->stats = array();
+		$this->filesAnalyzed = 0;
 
 		$functions = array();
 		if ($options->isDeprecatedFunctionsTestEnabled()) {
@@ -93,6 +99,7 @@ class CodeReviewAnalyzer {
 		foreach ($i as $filePath => $file) {
 			if ($file instanceof SplFileInfo) {
 				$result = $this->processFile($filePath, $functions);
+				$this->filesAnalyzed++;
 				if (!empty($result['problems'])) {
 					$this->stats[$filePath] = $result;
 				}
@@ -125,8 +132,10 @@ class CodeReviewAnalyzer {
 			$result .= "Found $total $type in " . count($this->stats) . " files\n";
 		}
 
-		if (count($this->stats) === 0) {
+		if ($this->filesAnalyzed === 0) {
 			$result .= "*** No files were processed! *** Analysis input parameters did not resolve to any files.\n";
+		} else {
+			$result .= "Processed " . $this->filesAnalyzed . " files total\n";
 		}
 
 		return $result;
