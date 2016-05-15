@@ -79,6 +79,10 @@ class CodeFixer {
 				'xml_to_object' => 'new ElggXMLElement',
 				'unregister_notification_handler' => 'elgg_unregister_notification_method',
 			),
+			'1.10' => array(
+				'file_get_general_file_type' => 'elgg_get_file_simple_type',
+				'file_get_simple_type' => 'elgg_get_file_simple_type',
+			),
 		);
 
 		$result = array();
