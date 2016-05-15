@@ -188,7 +188,7 @@ class code_review {
 		return strpos($e, self::PRIVATE_TAG_PREFIX) === 0;
 	}
 
-	private static function getDeprecatedInfoFromDocBlock($deprecatedInfo) {
+	private static function getDeprecatedInfoFromDocBlock($deprecatedInfo, $maxVersion) {
 		if (strpos($deprecatedInfo, '@' . self::DEPRECATED_TAG_PREFIX) === false){
 			return false;
 		} else {
@@ -222,6 +222,10 @@ class code_review {
 				'fixinfoshort' => strlen($shortDeprecatedInfo) > 0 ? $shortDeprecatedInfo : false,
 			);
 			if ($version) {
+				//skip versions higher than selected
+				if ($maxVersion && version_compare($version, $maxVersion) > 0) {
+					return false;
+				}
 				$result['version'] = $version;
 			}
 			return $result;
@@ -268,7 +272,7 @@ class code_review {
 				}
 
 				$tokens = new PhpFileParser($file->getPathname());
-				$functs = array_merge($functs, self::getDeprecatedFunctionsFromTokens($tokens, $file, $version));
+				$functs = array_merge($functs, self::getDeprecatedFunctionsFromTokens($tokens, $file, $version, $maxVersion));
 			}
 		}
 		return $functs;
@@ -304,9 +308,10 @@ class code_review {
 	 * @param PhpFileParser $tokens
 	 * @param SplFileInfo   $file
 	 * @param               $version
+	 * @param               $maxVersion max version to return
 	 * @return array
 	 */
-	private static function getDeprecatedFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file, $version) {
+	private static function getDeprecatedFunctionsFromTokens(PhpFileParser $tokens, SplFileInfo $file, $version, $maxVersion) {
 		$namespace = '';
 		$className = null;
 		$functs = array();
@@ -337,7 +342,8 @@ class code_review {
 					try {
 						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
 					} catch (ReflectionException $e) {
-						break;
+						var_dump($e->getMessage());
+						continue;
 					}
 
 				} else {
@@ -345,7 +351,8 @@ class code_review {
 					try {
 						$reflection = new ReflectionFunction($functionName);
 					} catch (ReflectionException $e) {
-						break;
+						var_dump($e->getMessage());
+						continue;
 					}
 				}
 
@@ -359,7 +366,7 @@ class code_review {
 
 				$docBlock = $reflection->getDocComment();
 				if ($docBlock) {
-					$info = self::getDeprecatedInfoFromDocBlock($docBlock);
+					$info = self::getDeprecatedInfoFromDocBlock($docBlock, $maxVersion);
 					if (!$info) {
 						if ($version) {
 							// no details, but we have version, so everything is deprecated here
