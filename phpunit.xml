@@ -5,10 +5,14 @@
 		</testsuite>
 	</testsuites>
 	<filter>
-		<blacklist>
-			<directory>./tests/phpunit/</directory>
-			<directory>./views/</directory>
-			<file>./start.php</file>
-		</blacklist>
+		<whitelist processUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">classes/</directory>
+			<directory suffix=".php">languages/</directory>
+			<exclude>
+				<directory>./tests/phpunit/</directory>
+				<directory>./views</directory>
+				<file>./start.php</file>
+			</exclude>
+		</whitelist>
 	</filter>
 </phpunit>

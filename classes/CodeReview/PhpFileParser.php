@@ -43,7 +43,7 @@ class PhpFileParser implements \Iterator, \ArrayAccess {
 
 		$this->tokens = token_get_all($contents);
 		if (!is_array($this->tokens)) {
-			throw new Exception("Failed to parse PHP contents of $fileName");
+			throw new \Exception("Failed to parse PHP contents of $fileName");
 		}
 		$this->computeNestingParentTokens();
 	}

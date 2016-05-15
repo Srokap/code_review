@@ -3,6 +3,13 @@ namespace CodeReview;
 
 /**
  * Simple configuration container handling basic options parsing nad providing convenient methods.
+ *
+ * @property string|null $subPath
+ * @property string $maxVersion
+ * @property bool $includeDisabledPlugins
+ * @property bool $findDeprecatedFunctions
+ * @property bool $findPrivateFunctions
+ * @property bool $fixProblems
  */
 class Config {
 
@@ -16,52 +23,21 @@ class Config {
 	protected $options = array();
 
 	/**
-	 * Selected subdirectory of rootpath to find problems in
-	 *
-	 * @var string|null
+	 * @var null|function
 	 */
-	protected $subPath = null;
-
-	/**
-	 * Maximum version to analyze
-	 *
-	 * @var string
-	 */
-	protected $maxVersion = '';
-
-	/**
-	 * Should we include disabled plugins within mod/ directory for analysis
-	 *
-	 * @var bool
-	 */
-	protected $includeDisabledPlugins = false;
-
-	/**
-	 * Should we perform deprecated functions usage search.
-	 *
-	 * @var bool
-	 */
-	protected $findDeprecatedFunctions = true;
-
-	/**
-	 * Should we perform private functions usage search.
-	 *
-	 * @var bool
-	 */
-	protected $findPrivateFunctions = true;
-
-	/**
-	 * Should we attempt to fix bad code? THIS IS DANGEROUS OPTION, CAREFUL!
-	 *
-	 * @var bool
-	 */
-	protected $fixProblems = false;
+	protected $versionGetter = null;
 
 	/**
 	 * @param array $options
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = array(), $versionGetter = null) {
 		$this->options = (array)$options;
+		if (is_callable($versionGetter)) {
+			$this->versionGetter = $versionGetter;
+		} else {
+			//TODO possibly further decouple Elgg core dependency
+			$this->versionGetter = 'elgg_get_version';
+		}
 	}
 
 	/**
@@ -69,7 +45,7 @@ class Config {
 	 * @return mixed
 	 */
 	public function __get($key) {
-		return $this->options[$key];
+		return isset($this->options[$key]) ? $this->options[$key] : null;
 	}
 
 	/**
@@ -103,7 +79,7 @@ class Config {
 				$pluginsDirs = $this->getPluginIds(self::T_PLUGINS_ALL);
 				$actives = call_user_func($config['plugins_getter'], 'active');
 				foreach ($actives as $plugin) {
-					if ($plugin instanceof ElggPlugin) {
+					if ($plugin instanceof \ElggPlugin) {
 						$pluginsDirs = array_diff($pluginsDirs, array($plugin->getID()));
 					} else {
 						$pluginsDirs = array_diff($pluginsDirs, array($plugin));
@@ -113,7 +89,7 @@ class Config {
 			case self::T_PLUGINS_ACTIVE:
 				$pluginsDirs = call_user_func($config['plugins_getter'], 'active');
 				foreach ($pluginsDirs as $key => $plugin) {
-					if ($plugin instanceof ElggPlugin) {
+					if ($plugin instanceof \ElggPlugin) {
 						$pluginsDirs[$key] = $plugin->getID();
 					}
 				}
@@ -131,23 +107,71 @@ class Config {
 	 */
 
 	/**
+	 * @param       $key
+	 * @param array $array
+	 * @param null  $default
+	 * @param bool  $strict
+	 * @return null
+	 *
+	 * Function is a part of Elgg framework with following license:
+
+		Copyright (c) 2013. See COPYRIGHT.txt
+		http://elgg.org/
+
+		Permission is hereby granted, free of charge, to any person obtaining
+		a copy of this software and associated documentation files (the
+		"Software"), to deal in the Software without restriction, including
+		without limitation the rights to use, copy, modify, merge, publish,
+		distribute, sublicense, and/or sell copies of the Software, and to
+		permit persons to whom the Software is furnished to do so, subject to
+		the following conditions:
+
+		The above copyright notice and this permission notice shall be
+		included in all copies or substantial portions of the Software.
+
+		Except as contained in this notice, the name(s) of the above copyright
+		holders shall not be used in advertising or otherwise to promote the
+		sale, use or other dealings in this Software without prior written
+		authorization.
+
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+		EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+		MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+		NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+		LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+		OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+		WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	 */
+	private function elggExtract($key, array $array, $default = null, $strict = true) {
+		if (!is_array($array)) {
+			return $default;
+		}
+
+		if ($strict) {
+			return (isset($array[$key])) ? $array[$key] : $default;
+		} else {
+			return (isset($array[$key]) && !empty($array[$key])) ? $array[$key] : $default;
+		}
+	}
+
+	/**
 	 * @param array $vars
 	 */
 	public function parseInput(array $vars) {
 
 		//sanitize provided path
-		$subPath = elgg_extract('subpath', $vars, '/');
+		$subPath = $this->elggExtract('subpath', $vars, '/');
 		$subPath = trim($subPath, '/\\');
 		$subPath = str_replace('\\', '/', $subPath);
 		$subPath = str_replace('..', '', $subPath);
 		$subPath = $subPath . '/';
 
 		$this->subPath = $subPath;
-		$this->maxVersion = elgg_extract('version', $vars, '');
-		$this->includeDisabledPlugins = elgg_extract('include_disabled_plugins', $vars, false);
-		$this->findDeprecatedFunctions = elgg_extract('find_deprecated_functions', $vars, true);
-		$this->findPrivateFunctions = elgg_extract('find_private_functions', $vars, true);
-		$this->fixProblems = elgg_extract('fix_problems', $vars);
+		$this->maxVersion = $this->elggExtract('version', $vars, '');
+		$this->includeDisabledPlugins = $this->elggExtract('include_disabled_plugins', $vars, false);
+		$this->findDeprecatedFunctions = $this->elggExtract('find_deprecated_functions', $vars, true);
+		$this->findPrivateFunctions = $this->elggExtract('find_private_functions', $vars, true);
+		$this->fixProblems = $this->elggExtract('fix_problems', $vars, false);
 	}
 
 	/**
@@ -162,8 +186,7 @@ class Config {
 	 */
 	public function getMaxVersion() {
 		if (!$this->maxVersion) {
-			//TODO decouple Elgg core dependency
-			return elgg_get_version(true);
+			return call_user_func($this->versionGetter, true);
 		}
 		return $this->maxVersion;
 	}

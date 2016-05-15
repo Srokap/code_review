@@ -325,8 +325,8 @@ class code_review {
 				if ($className !== null) {
 					$functionName = $className . '::' . $tokens[$key+2][1];
 					try {
-						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
-					} catch (ReflectionException $e) {
+						$reflection = new \ReflectionMethod($className, $tokens[$key+2][1]);
+					} catch (\ReflectionException $e) {
 //						var_dump($className, $functionName, $e->getMessage());
 						continue;
 					}
@@ -334,8 +334,8 @@ class code_review {
 				} else {
 					$functionName = $tokens[$key+2][1];
 					try {
-						$reflection = new ReflectionFunction($functionName);
-					} catch (ReflectionException $e) {
+						$reflection = new \ReflectionFunction($functionName);
+					} catch (\ReflectionException $e) {
 //						var_dump($functionName, $e->getMessage());
 						continue;
 					}
@@ -409,16 +409,16 @@ class code_review {
 				if ($className !== null) {
 					$functionName = $className . '::' . $tokens[$key+2][1];
 					try {
-						$reflection = new ReflectionMethod($className, $tokens[$key+2][1]);
-					} catch (ReflectionException $e) {
-						break;
+						$reflection = new \ReflectionMethod($className, $tokens[$key+2][1]);
+					} catch (\ReflectionException $e) {
+						continue;
 					}
 				} else {
 					$functionName = $tokens[$key+2][1];
 					try {
-						$reflection = new ReflectionFunction($functionName);
-					} catch (ReflectionException $e) {
-						break;
+						$reflection = new \ReflectionFunction($functionName);
+					} catch (\ReflectionException $e) {
+						continue;
 					}
 				}
 

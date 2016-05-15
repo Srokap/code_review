@@ -9,7 +9,7 @@ class FileFilterIterator extends \FilterIterator {
 	private $basePath;
 
 	/**
-	 * @param Iterator         $iterator
+	 * @param \Iterator         $iterator
 	 * @param string           $basePath
 	 * @param \CodeReview\Config $config
 	 * @throws \CodeReview\IOException

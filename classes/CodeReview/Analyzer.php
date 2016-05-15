@@ -59,7 +59,7 @@ class Analyzer {
 	/**
 	 * @param string $subPath
 	 * @throws \CodeReview\IOException
-	 * @return CodeReviewFileFilterIterator
+	 * @return \CodeReview\FileFilterIterator
 	 */
 	public function getPhpFilesIterator($subPath = 'engine/') {
 		$config = \code_review::getConfig();
@@ -155,7 +155,7 @@ class Analyzer {
 
 		foreach ($functions as $key => $function) {
 			if (function_exists($function)) {
-				$reflectionFunction = new ReflectionFunction($function);
+				$reflectionFunction = new \ReflectionFunction($function);
 				if (!$reflectionFunction->isInternal()) {
 					continue;
 				}
