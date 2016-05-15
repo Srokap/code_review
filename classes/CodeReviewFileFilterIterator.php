@@ -24,7 +24,6 @@ class CodeReviewFileFilterIterator extends FilterIterator {
 			foreach ($pluginsDirs as $pluginDir) {
 				$this->blacklist[] = 'mod/' . $pluginDir . '/.*';
 			}
-// 			var_dump($this->blacklist);
 		}
 		
 		parent::__construct($iterator);

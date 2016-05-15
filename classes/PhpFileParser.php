@@ -129,13 +129,6 @@ class PhpFileParser implements Iterator, ArrayAccess {
 						echo "$nesting\{\$\n";
 					}
 				}
-//				elseif ($this->isEqualToToken(T_DO, $key)) {
-//					$lastParent = $key;
-//				} elseif ($this->isEqualToToken(T_WHILE, $key)) {
-//					$lastParent = $key;
-//				} elseif ($this->isEqualToToken(T_FOR, $key)) {
-//					$lastParent = $key;
-//				}
 			} else {
 				if ($token == '{') {
 					$nesting++;

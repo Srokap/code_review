@@ -30,14 +30,6 @@ class PhpTokensFilterIterator extends FilterIterator {
 		parent::__construct($iterator);
 	}
 
-//	/**
-//	 * @return mixed
-//	 */
-//	function key() {
-//		$key = parent::key();
-//		return $key - $this->offset;
-//	}
-
 	/**
 	 * @return bool
 	 */
