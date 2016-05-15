@@ -153,6 +153,7 @@ class code_review {
 				}
 			}
 		}
+		usort($vv, 'version_compare');
 		return $vv;
 	}
 
@@ -360,8 +361,17 @@ class code_review {
 				if ($docBlock) {
 					$info = self::getDeprecatedInfoFromDocBlock($docBlock);
 					if (!$info) {
-						//skipping - not deprecated
-						continue;
+						if ($version) {
+							// no details, but we have version, so everything is deprecated here
+							$info = array(
+								'deprecated' => true,
+								'version' => $version,
+								'fixinfoshort' => false,
+							);
+						} else {
+							//skipping - not deprecated
+							continue;
+						}
 					}
 					$data = array_merge($data, $info);
 				}
