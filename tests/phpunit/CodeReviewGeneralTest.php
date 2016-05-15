@@ -18,32 +18,57 @@ class CodeReviewGeneralTest extends PHPUnit_Framework_TestCase {
 
 		$functions = code_review::getDeprecatedFunctionsList('1.2');
 		$this->assertArrayHasKey('dummy_deprecated_function1', $functions);
+		$this->assertArrayHasKey('dummy_deprecated_function2', $functions);
 
-		$deprecatedFunction = $functions['dummy_deprecated_function1'];
-		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction);
-		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction);
-		$this->assertFalse(is_array($deprecatedFunction));
+		$deprecatedFunction1 = $functions['dummy_deprecated_function1'];
+		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction1);
+		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction1);
+		$this->assertFalse(is_array($deprecatedFunction1));
 
-		$this->assertArrayHasKey('name', $deprecatedFunction);
-		$this->assertArrayHasKey('version', $deprecatedFunction);
-		$this->assertArrayHasKey('file', $deprecatedFunction);
-		$this->assertArrayHasKey('line', $deprecatedFunction);
-		$this->assertArrayHasKey('deprecated', $deprecatedFunction);
-		$this->assertArrayHasKey('reason', $deprecatedFunction);
-		$this->assertArrayHasKey('fixinfoshort', $deprecatedFunction);
+		$this->assertArrayHasKey('name', $deprecatedFunction1);
+		$this->assertArrayHasKey('version', $deprecatedFunction1);
+		$this->assertArrayHasKey('file', $deprecatedFunction1);
+		$this->assertArrayHasKey('line', $deprecatedFunction1);
+		$this->assertArrayHasKey('deprecated', $deprecatedFunction1);
+		$this->assertArrayHasKey('reason', $deprecatedFunction1);
+		$this->assertArrayHasKey('fixinfoshort', $deprecatedFunction1);
 
-		$this->assertEquals('dummy_deprecated_function1', $deprecatedFunction['name']);
-		$this->assertEquals('1.1', $deprecatedFunction['version']);
-		$this->assertEquals(true, $deprecatedFunction['deprecated']);
-		$this->assertEquals('deprecated', $deprecatedFunction['reason']);
-		$this->assertEquals('Remove it', $deprecatedFunction['fixinfoshort']);
+		$this->assertEquals('dummy_deprecated_function1', $deprecatedFunction1['name']);
+		$this->assertEquals('1.1', $deprecatedFunction1['version']);
+		$this->assertEquals(true, $deprecatedFunction1['deprecated']);
+		$this->assertEquals('deprecated', $deprecatedFunction1['reason']);
+		$this->assertEquals('Remove it', $deprecatedFunction1['fixinfoshort']);
 
-		$this->assertEquals("Line " . $deprecatedFunction['line'] . ":\tFunction call: "
-			. $deprecatedFunction['name'] . " (deprecated since 1.1) Remove it",
-			(string)$deprecatedFunction);
+		$this->assertEquals("Line " . $deprecatedFunction1['line'] . ":\tFunction call: "
+			. $deprecatedFunction1['name'] . " (deprecated since 1.1) Remove it",
+			(string)$deprecatedFunction1);
+
+		$deprecatedFunction2 = $functions['dummy_deprecated_function2'];
+		$this->assertInstanceOf('CodeReview_Issues_Deprecated', $deprecatedFunction2);
+		$this->assertInstanceOf('ArrayAccess', $deprecatedFunction2);
+		$this->assertFalse(is_array($deprecatedFunction2));
+
+		$this->assertArrayHasKey('name', $deprecatedFunction2);
+		$this->assertArrayHasKey('version', $deprecatedFunction2);
+		$this->assertArrayHasKey('file', $deprecatedFunction2);
+		$this->assertArrayHasKey('line', $deprecatedFunction2);
+		$this->assertArrayHasKey('deprecated', $deprecatedFunction2);
+		$this->assertArrayHasKey('reason', $deprecatedFunction2);
+		$this->assertArrayHasKey('fixinfoshort', $deprecatedFunction2);
+
+		$this->assertEquals('dummy_deprecated_function2', $deprecatedFunction2['name']);
+		$this->assertEquals('1.2', $deprecatedFunction2['version']);
+		$this->assertEquals(true, $deprecatedFunction2['deprecated']);
+		$this->assertEquals('deprecated', $deprecatedFunction2['reason']);
+		$this->assertEquals(false, $deprecatedFunction2['fixinfoshort']);
+
+		$this->assertEquals("Line " . $deprecatedFunction2['line'] . ":\tFunction call: "
+			. $deprecatedFunction2['name'] . " (deprecated since 1.2)",
+			(string)$deprecatedFunction2);
 
 		$functions = code_review::getDeprecatedFunctionsList('1.1');
 		$this->assertArrayNotHasKey('dummy_deprecated_function1', $functions);
+		$this->assertArrayNotHasKey('dummy_deprecated_function2', $functions);
 	}
 
 	public function testGetPrivateFunctionsList() {
